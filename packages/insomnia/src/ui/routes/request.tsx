@@ -101,6 +101,7 @@ export const createRequestAction: ActionFunction = async ({ request, params }) =
   const { requestType, parentId, req } = await request.json() as { requestType: CreateRequestType; parentId?: string; req?: Request };
 
   let activeRequestId;
+
   if (requestType === 'HTTP') {
     activeRequestId = (await models.request.create({
       parentId: parentId || workspaceId,
@@ -109,12 +110,14 @@ export const createRequestAction: ActionFunction = async ({ request, params }) =
       headers: [{ name: 'User-Agent', value: `insomnium/${version}` }],
     }))._id;
   }
+
   if (requestType === 'gRPC') {
     activeRequestId = (await models.grpcRequest.create({
       parentId: parentId || workspaceId,
       name: 'New Request',
     }))._id;
   }
+
   if (requestType === 'GraphQL') {
     activeRequestId = (await models.request.create({
       parentId: parentId || workspaceId,
@@ -130,6 +133,7 @@ export const createRequestAction: ActionFunction = async ({ request, params }) =
       name: 'New Request',
     }))._id;
   }
+
   if (requestType === 'Event Stream') {
     activeRequestId = (await models.request.create({
       parentId: parentId || workspaceId,
@@ -142,6 +146,7 @@ export const createRequestAction: ActionFunction = async ({ request, params }) =
       name: 'New Event Stream',
     }))._id;
   }
+
   if (requestType === 'WebSocket') {
     activeRequestId = (await models.webSocketRequest.create({
       parentId: parentId || workspaceId,
@@ -149,6 +154,7 @@ export const createRequestAction: ActionFunction = async ({ request, params }) =
       headers: [{ name: 'User-Agent', value: `insomnium/${version}` }],
     }))._id;
   }
+
   if (requestType === 'From Curl') {
     if (!req) {
       return null;
@@ -232,6 +238,7 @@ export const duplicateRequestAction: ActionFunction = async ({ request, params }
   const newRequest = await requestOperations.duplicate(req, { name });
   guard(newRequest, 'Failed to duplicate request');
   models.stats.incrementCreatedRequests();
+
   return redirect(`/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request/${newRequest._id}`);
 };
 

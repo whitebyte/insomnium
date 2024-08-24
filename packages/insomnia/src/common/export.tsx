@@ -21,7 +21,6 @@ import { isUnitTestSuite } from '../models/unit-test-suite';
 import { isWebSocketPayload } from '../models/websocket-payload';
 import { isWebSocketRequest } from '../models/websocket-request';
 import { isWorkspace, Workspace } from '../models/workspace';
-import { resetKeys } from '../sync/ignore-keys';
 
 import { showAlert, showError, showModal } from '../ui/components/modals';
 import { AskModal } from '../ui/components/modals/ask-modal';
@@ -224,7 +223,6 @@ export async function exportRequestsData(
         // @ts-expect-error -- TSCONVERSION maybe this needs to be added to the upstream type?
         d._type = EXPORT_TYPE_WORKSPACE;
         // reset the parentId of a workspace
-        resetKeys(d);
       } else if (isCookieJar(d)) {
         // @ts-expect-error -- TSCONVERSION maybe this needs to be added to the upstream type?
         d._type = EXPORT_TYPE_COOKIE_JAR;

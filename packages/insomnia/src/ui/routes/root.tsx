@@ -32,8 +32,6 @@ import { isDesign } from '../../models/workspace';
 import { reloadPlugins } from '../../plugins';
 import { createPlugin } from '../../plugins/create';
 import { setTheme } from '../../plugins/misc';
-import { exchangeCodeForToken } from '../../sync/git/github-oauth-provider';
-import { exchangeCodeForGitLabToken } from '../../sync/git/gitlab-oauth-provider';
 
 import { WorkspaceDropdown } from '../components/dropdowns/workspace-dropdown';
 
@@ -177,34 +175,6 @@ const Root = () => {
                             },
                         });
                         break;
-
-                    case 'insomnia://oauth/github/authenticate': {
-                        const { code, state } = params;
-                        await exchangeCodeForToken({ code, state }).catch(
-                            (error: Error) => {
-                                showError({
-                                    error,
-                                    title: 'Error authorizing GitHub',
-                                    message: error.message,
-                                });
-                            }
-                        );
-                        break;
-                    }
-
-                    case 'insomnia://oauth/gitlab/authenticate': {
-                        const { code, state } = params;
-                        await exchangeCodeForGitLabToken({ code, state }).catch(
-                            (error: Error) => {
-                                showError({
-                                    error,
-                                    title: 'Error authorizing GitLab',
-                                    message: error.message,
-                                });
-                            }
-                        );
-                        break;
-                    }
 
                     case 'insomnia://app/auth/finish': {
 

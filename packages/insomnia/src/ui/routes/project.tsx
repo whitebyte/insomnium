@@ -59,7 +59,6 @@ import { WorkspaceCardDropdown } from '../components/dropdowns/workspace-card-dr
 import { ErrorBoundary } from '../components/error-boundary';
 import { Icon } from '../components/icon';
 import { showAlert, showPrompt } from '../components/modals';
-import { GitRepositoryCloneModal } from '../components/modals/git-repository-settings-modal/git-repo-clone-modal';
 import { ImportModal } from '../components/modals/import-modal';
 import { EmptyStatePane } from '../components/panes/project-empty-state-pane';
 import { SidebarLayout } from '../components/sidebar-layout';
@@ -71,9 +70,6 @@ export interface WorkspaceWithMetadata {
   lastModifiedTimestamp: number;
   created: number;
   modifiedLocally: number;
-  lastCommitTime: number | null | undefined;
-  lastCommitAuthor: string | null | undefined;
-  lastActiveBranch: string | null | undefined;
   spec: Record<string, any> | null;
   specFormat: 'openapi' | 'swagger' | null;
   name: string;
@@ -188,9 +184,6 @@ export const loader: LoaderFunction = async ({
       workspace._id
     );
     guard(workspaceMeta, 'WorkspaceMeta was not found');
-    const lastActiveBranch = workspaceMeta?.cachedGitRepositoryBranch;
-
-    const lastCommitAuthor = workspaceMeta?.cachedGitLastAuthor;
 
     // WorkspaceMeta is a good proxy for last modified time
     const workspaceModified = workspaceMeta?.modified || workspace.modified;
@@ -203,8 +196,7 @@ export const loader: LoaderFunction = async ({
     const lastModifiedFrom = [
       workspace?.modified,
       workspaceMeta?.modified,
-      modifiedLocally,
-      workspaceMeta?.cachedGitLastCommitTime,
+      modifiedLocally
     ];
 
     const lastModifiedTimestamp = lastModifiedFrom
@@ -212,9 +204,7 @@ export const loader: LoaderFunction = async ({
       .sort(descendingNumberSort)[0];
 
     const hasUnsavedChanges = Boolean(
-      isDesign(workspace) &&
-        workspaceMeta?.cachedGitLastCommitTime &&
-        modifiedLocally > workspaceMeta?.cachedGitLastCommitTime
+      isDesign(workspace)
     );
 
     const clientCertificates = await models.clientCertificate.findByParentId(
@@ -227,9 +217,6 @@ export const loader: LoaderFunction = async ({
       lastModifiedTimestamp,
       created: workspace.created,
       modifiedLocally,
-      lastCommitTime: workspaceMeta?.cachedGitLastCommitTime,
-      lastCommitAuthor,
-      lastActiveBranch,
       spec,
       specFormat,
       name: workspace.name,
@@ -261,7 +248,6 @@ export const loader: LoaderFunction = async ({
                 workspace.workspace.scope === 'design'
                   ? 'document'
                   : 'collection',
-                workspace.lastActiveBranch || '',
                 workspace.specFormatVersion || '',
               ],
               { splitSpace: true, loose: true }
@@ -324,9 +310,6 @@ const ProjectRoute: FC = () => {
   const organizations = [defaultOrganization];
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isGitRepositoryCloneModalOpen, setIsGitRepositoryCloneModalOpen] =
-    useState(false);
-
   const fetcher = useFetcher();
   const navigate = useNavigate();
   const filter = searchParams.get('filter') || '';
@@ -381,10 +364,6 @@ const ProjectRoute: FC = () => {
 
   const createNewProjectFetcher = useFetcher();
 
-  const importFromGit = () => {
-    setIsGitRepositoryCloneModalOpen(true);
-  };
-
   const createInProjectActionList: {
     id: string;
     name: string;
@@ -410,13 +389,7 @@ const ProjectRoute: FC = () => {
       action: () => {
         setImportModalType('file');
       },
-    },
-    {
-      id: 'git-clone',
-      name: 'Git Clone',
-      icon: 'code-fork',
-      action: importFromGit,
-    },
+    }
   ];
 
   const scopeActionList: {
@@ -817,7 +790,6 @@ const ProjectRoute: FC = () => {
                       createRequestCollection={createNewCollection}
                       createDesignDocument={createNewDocument}
                       importFrom={() => setImportModalType('file')}
-                      cloneFromGit={importFromGit}
                     />
                   );
                 }}
@@ -890,15 +862,11 @@ const ProjectRoute: FC = () => {
                               timestamp={
                                 (item.hasUnsavedChanges &&
                                   item.modifiedLocally) ||
-                                item.lastCommitTime ||
                                 item.lastModifiedTimestamp
                               }
                             />
                             <span className="truncate">
-                              {!item.hasUnsavedChanges &&
-                                item.lastCommitTime &&
-                                item.lastCommitAuthor &&
-                                `by ${item.lastCommitAuthor}`}
+                              {!item.hasUnsavedChanges}
                             </span>
                           </div>
                         )}
@@ -910,11 +878,6 @@ const ProjectRoute: FC = () => {
             </div>
           }
         />
-        {isGitRepositoryCloneModalOpen && (
-          <GitRepositoryCloneModal
-            onHide={() => setIsGitRepositoryCloneModalOpen(false)}
-          />
-        )}
         {importModalType && (
           <ImportModal
             onHide={() => setImportModalType(null)}

@@ -12,7 +12,6 @@ import { CaCertificate } from '../../models/ca-certificate';
 import { ClientCertificate } from '../../models/client-certificate';
 import { CookieJar } from '../../models/cookie-jar';
 import { Environment } from '../../models/environment';
-import { GitRepository } from '../../models/git-repository';
 import { GrpcRequest } from '../../models/grpc-request';
 import { GrpcRequestMeta } from '../../models/grpc-request-meta';
 import { sortProjects } from '../../models/helpers/project';
@@ -36,7 +35,6 @@ export interface WorkspaceLoaderData {
   activeWorkspace: Workspace;
   activeWorkspaceMeta: WorkspaceMeta;
   activeProject: Project;
-  gitRepository: GitRepository | null;
   activeEnvironment: Environment;
   activeCookieJar: CookieJar;
   baseEnvironment: Environment;
@@ -82,9 +80,6 @@ export const workspaceLoader: LoaderFunction = async ({
     workspaceId,
   );
   guard(activeWorkspaceMeta, 'Workspace meta not found');
-  const gitRepository = await models.gitRepository.getById(
-    activeWorkspaceMeta.gitRepositoryId || '',
-  );
 
   const baseEnvironment = await models.environment.getByParentId(workspaceId);
   guard(baseEnvironment, 'Base environment not found');
@@ -254,7 +249,6 @@ export const workspaceLoader: LoaderFunction = async ({
   return {
     activeWorkspace,
     activeProject,
-    gitRepository,
     activeWorkspaceMeta,
     activeCookieJar,
     activeEnvironment,
@@ -274,8 +268,7 @@ export const workspaceLoader: LoaderFunction = async ({
 
 const WorkspaceRoute = () => {
   const workspaceData = useLoaderData() as WorkspaceLoaderData;
-  const branch = workspaceData.activeWorkspaceMeta.cachedGitRepositoryBranch;
-  return <Outlet key={branch} />;
+  return <Outlet key={null} />;
 };
 
 export default WorkspaceRoute;

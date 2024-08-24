@@ -84,7 +84,6 @@ This is just a brief summary of Insomnium's current technical debt.
 - [ ] nedb is unmaintained
 - [ ] grpc state state should be in main rather than renderer
 - [ ] drag and drop is flakey
-- [ ] sync code is spaghetti
 - [ ] template rendering is spaghetti and has poor discoverability
 - [ ] inso abstraction limits networking improvements
 - [ ] testing feature doesn't scale with investment

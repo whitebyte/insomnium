@@ -48,7 +48,6 @@ interface Props {
   createRequestCollection: () => void;
   createDesignDocument: () => void;
   importFrom: () => void;
-  cloneFromGit: () => void;
 }
 
 export const EmptyStatePane: FC<Props> = ({ createRequestCollection, createDesignDocument, importFrom, cloneFromGit }) => {
@@ -86,15 +85,6 @@ export const EmptyStatePane: FC<Props> = ({ createRequestCollection, createDesig
             onClick={importFrom}
           >
             <i className='fa fa-file-import' /> Import
-          </Button>
-          <Button
-            style={{
-              gap: 'var(--padding-xs)',
-              flex: 1,
-            }}
-            onClick={cloneFromGit}
-          >
-            <i className='fa fa-code-fork' /> Git Clone
           </Button>
         </div>
       </div>

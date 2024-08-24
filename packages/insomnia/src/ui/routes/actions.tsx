@@ -115,15 +115,6 @@ export const createNewWorkspaceAction: ActionFunction = async ({
   const workspaceMeta = await models.workspaceMeta.getOrCreateByParentId(workspace._id);
 
   await database.flushChanges(flushId);
-  // if (session.isLoggedIn() && isRemoteProject(project) && !workspaceMeta.gitRepositoryId) {
-  //   const vcs = getVCS();
-  //   if (vcs) {
-  //     await initializeLocalBackendProjectAndMarkForSync({
-  //       vcs,
-  //       workspace,
-  //     });
-  //   }
-  // }
 
   return redirect(
     `/organization/${organizationId}/project/${projectId}/workspace/${workspace._id}/${workspace.scope === 'collection' ? ACTIVITY_DEBUG : ACTIVITY_SPEC

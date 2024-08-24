@@ -139,14 +139,8 @@ export const getUpdatesBaseURL = () => env.INSOMNIA_UPDATES_URL || 'https://arch
 // App website
 export const getAppWebsiteBaseURL = () => env.INSOMNIA_APP_WEBSITE_URL || 'https://app.insomnia.rest';
 
-// GitHub API
-export const getGitHubGraphQLApiURL = () => env.INSOMNIA_GITHUB_API_URL || 'https://api.github.com/graphql';
-
 // License
 export const getLicenseURL = () => env.INSOMNIUM_LICENSE_URL || 'https://github.com/ArchGPT/insomnium/blob/main/LICENSE';
-
-// SYNC
-export const DEFAULT_BRANCH_NAME = 'master';
 
 // PLUGIN
 export const PLUGIN_HUB_BASE = 'https://insomnia.rest/plugins';

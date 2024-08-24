@@ -30,11 +30,6 @@ import { Notice, NoticeTable } from '../components/notice-table';
 import { SidebarLayout } from '../components/sidebar-layout';
 import { SpecEditorSidebar } from '../components/spec-editor/spec-editor-sidebar';
 import { Tooltip } from '../components/tooltip';
-import {
-  useActiveApiSpecSyncVCSVersion,
-  useGitVCSVersion,
-} from '../hooks/use-vcs-version';
-import { WorkspaceSyncDropdown } from '../components/dropdowns/workspace-sync-dropdown';
 const EmptySpaceHelper = styled.div({
   display: 'flex',
   alignItems: 'flex-start',
@@ -229,7 +224,6 @@ const Design: FC = () => {
     [editor]
   );
 
-  const gitVersion = useGitVCSVersion();
   const syncVersion = useActiveApiSpecSyncVCSVersion();
   const uniquenessKey = `${apiSpec?._id}::${apiSpec?.created}::${gitVersion}::${syncVersion}`;
 

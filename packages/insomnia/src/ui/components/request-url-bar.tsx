@@ -1,4 +1,3 @@
-
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useFetcher, useParams, useRouteLoaderData } from 'react-router-dom';
 import { useInterval } from 'react-use';
@@ -97,6 +96,7 @@ export const RequestUrlBar = forwardRef<RequestUrlBarHandle, Props>(({
       });
   };
   const send = (sendParams: SendActionParams) => {
+            debugger
     fetcher.submit(JSON.stringify(sendParams),
       {
         action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request/${requestId}/send`,
@@ -141,12 +141,14 @@ export const RequestUrlBar = forwardRef<RequestUrlBarHandle, Props>(({
     }
 
     try {
-      const { request,
-        environment } = await fetchRequestData(requestId);
+      const {
+        request,
+        environment
+      } = await fetchRequestData(requestId);
 
       const renderResult = await tryToInterpolateRequest(request, environment._id, RENDER_PURPOSE_SEND);
-      // ARCHY NOTE: HERE IS SEND
       const renderedRequest = await tryToTransformRequestWithPlugins(renderResult);
+
       renderedRequest && send({
         renderedRequest,
         shouldPromptForPathAfterResponse,

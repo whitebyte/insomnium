@@ -17,10 +17,6 @@ export interface BaseWorkspaceMeta {
   activeEnvironmentId: string | null;
   activeRequestId: string | null;
   activeUnitTestSuiteId: string | null;
-  cachedGitLastAuthor: string | null;
-  cachedGitLastCommitTime: number | null;
-  cachedGitRepositoryBranch: string | null;
-  gitRepositoryId: string | null;
   hasSeen: boolean;
   paneHeight: number;
   paneWidth: number;
@@ -43,10 +39,6 @@ export function init(): BaseWorkspaceMeta {
     activeEnvironmentId: null,
     activeRequestId: null,
     activeUnitTestSuiteId: null,
-    cachedGitLastAuthor: null,
-    cachedGitLastCommitTime: null,
-    cachedGitRepositoryBranch: null,
-    gitRepositoryId: null,
     hasSeen: true,
     paneHeight: DEFAULT_PANE_HEIGHT,
     paneWidth: DEFAULT_PANE_WIDTH,

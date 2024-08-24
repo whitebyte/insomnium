@@ -9,6 +9,7 @@ import { RootLoaderData } from '../routes/root';
 import { WorkspaceLoaderData } from '../routes/workspace';
 import { ErrorBoundary } from './error-boundary';
 import { Sidebar } from './sidebar/sidebar';
+
 const verticalStyles = {
   '.sidebar': {
     gridColumnStart: '2',

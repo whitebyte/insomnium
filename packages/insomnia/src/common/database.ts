@@ -9,7 +9,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { mustGetModel } from '../models';
 import { CookieJar } from '../models/cookie-jar';
 import { Environment } from '../models/environment';
-import { GitRepository } from '../models/git-repository';
 import type { BaseModel } from '../models/index';
 import * as models from '../models/index';
 import type { Workspace } from '../models/workspace';
@@ -737,10 +736,6 @@ export async function _fixDBShape() {
   }
 
   console.log(['workspaces'], workspaces);
-
-  for (const gitRepository of await database.find<GitRepository>(models.gitRepository.type)) {
-    await _fixOldGitURIs(gitRepository);
-  }
 }
 
 /**
@@ -840,19 +835,4 @@ async function _fixMultipleCookieJars(workspace: Workspace) {
   // Update remaining jar
   await database.update(chosenJar);
   console.log(`[fix] Merged ${cookieJars.length} cookie jars under ${workspace.name}`);
-}
-
-// Append .git to old git URIs to mimic previous isomorphic-git behaviour
-async function _fixOldGitURIs(doc: GitRepository) {
-  if (!doc.uriNeedsMigration) {
-    return;
-  }
-
-  if (!doc.uri.endsWith('.git')) {
-    doc.uri += '.git';
-  }
-
-  doc.uriNeedsMigration = false;
-  await database.update(doc);
-  console.log(`[fix] Fixed git URI for ${doc._id}`);
 }

@@ -8,7 +8,6 @@ import { queryAllWorkspaceUrls } from '../../../models/helpers/query-all-workspa
 import type { Settings } from '../../../models/settings';
 import { deconstructQueryStringToParams, extractQueryStringFromUrl } from '../../../utils/url/querystring';
 import { useRequestSetter, useSettingsPatcher } from '../../hooks/use-request';
-import { useActiveRequestSyncVCSVersion, useGitVCSVersion } from '../../hooks/use-vcs-version';
 import { RequestLoaderData } from '../../routes/request';
 import { WorkspaceLoaderData } from '../../routes/workspace';
 import { PanelContainer, TabItem, Tabs } from '../base/tabs';
@@ -31,7 +30,7 @@ import { RequestUrlBar } from '../request-url-bar';
 import { Pane, PaneHeader } from './pane';
 import { PlaceholderRequestPane } from './placeholder-request-pane';
 import { RequestSegmentEditor } from '../editors/request-segment-editor';
-import { GitRepoLoaderData } from '../../routes/git-actions';
+
 const HeaderContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
@@ -80,6 +79,7 @@ export const RequestPane: FC<Props> = ({
   const patchRequest = useRequestSetter();
 
   useState(false);
+
   const handleImportQueryFromUrl = () => {
     let query;
 
@@ -102,34 +102,12 @@ export const RequestPane: FC<Props> = ({
       patchRequest(requestId, { url, parameters });
     }
   };
-  const gitVersion = useGitVCSVersion();
-
-  // const {
-  //   activeProject,
-  //   activeWorkspace,
-  //   gitRepository,
-  //   activeWorkspaceMeta,
-  // } = useRouteLoaderData(
-  //   ':workspaceId'
-  // ) as WorkspaceLoaderData;
-
-  // const gitRepoDataFetcher = useFetcher<GitRepoLoaderData>();
-  // alert(gitVersion)
-  // const { branches, branch: currentBranch } =
-  //   gitRepoDataFetcher.data && 'branches' in gitRepoDataFetcher.data
-  //     ? gitRepoDataFetcher.data
-  //     : { branches: [], branch: '' };
-
-  console.log("gitVersion ->", gitVersion);
-
-
-  const activeRequestSyncVersion = useActiveRequestSyncVCSVersion();
 
   const { activeEnvironment } = useRouteLoaderData(
     ':workspaceId',
   ) as WorkspaceLoaderData;
-  // Force re-render when we switch requests, the environment gets modified, or the (Git|Sync)VCS version changes
-  const uniqueKeyReq = `${activeEnvironment?.modified}::${requestId}::${gitVersion}::${activeRequestSyncVersion}`;
+  // Force re-render when we switch requests or the environment gets modified
+  const uniqueKeyReq = `${activeEnvironment?.modified}::${requestId}`;
 
   const uniqueKey = `${uniqueKeyReq}::${activeRequestMeta?.activeResponseId}`;
 
@@ -147,7 +125,6 @@ export const RequestPane: FC<Props> = ({
     activeRequest.body.mimeType;
   return (
     <Pane type="request">
-
       <PaneHeader >
         <ErrorBoundary errorClassName="font-error pad text-center">
           <RequestUrlBar
