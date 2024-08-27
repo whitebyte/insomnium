@@ -47,7 +47,6 @@ import {
 } from '../../models/organization';
 import {
   DEFAULT_PROJECT_ID,
-  isRemoteProject,
   Project,
 } from '../../models/project';
 import { isDesign, Workspace } from '../../models/workspace';
@@ -106,9 +105,8 @@ export const indexLoader: LoaderFunction = async ({ params }) => {
   }
 
   if (models.organization.DEFAULT_ORGANIZATION_ID === organizationId) {
-    const localProjects = (await models.project.all()).filter(
-      proj => !isRemoteProject(proj)
-    );
+    const localProjects = (await models.project.all());
+
     if (localProjects[0]._id) {
       return redirect(
         `/organization/${organizationId}/project/${localProjects[0]._id}`
@@ -261,7 +259,7 @@ export const loader: LoaderFunction = async ({
 
   const organizationProjects =
     organizationId === DEFAULT_ORGANIZATION_ID
-      ? allProjects.filter(proj => !isRemoteProject(proj))
+      ? allProjects
       : [project];
 
   const projects = sortProjects(organizationProjects).filter(p =>
@@ -586,9 +584,7 @@ const ProjectRoute: FC = () => {
                         <div className="flex select-none outline-none group-aria-selected:text-[--color-font] relative group-hover:bg-[--hl-xs] group-focus:bg-[--hl-sm] transition-colors gap-2 px-4 items-center h-[--line-height-xs] w-full overflow-hidden text-[--hl]">
                           <span className="group-aria-selected:bg-[--color-surprise] transition-colors top-0 left-0 absolute h-full w-[2px] bg-transparent" />
                           <Icon
-                            icon={
-                              isRemoteProject(item) ? 'globe-americas' : 'laptop'
-                            }
+                            icon={'laptop'}
                           />
                           <span className="truncate">{item.name}</span>
                           <span className="flex-1" />
@@ -844,14 +840,6 @@ const ProjectRoute: FC = () => {
                                 ? 'OpenAPI'
                                 : 'Swagger'}{' '}
                               {item.specFormatVersion}
-                            </span>
-                          </div>
-                        )}
-                        {item.lastActiveBranch && (
-                          <div className="text-sm flex items-center gap-2">
-                            <Icon icon="code-branch" />
-                            <span className="truncate">
-                              {item.lastActiveBranch}
                             </span>
                           </div>
                         )}

@@ -1,6 +1,5 @@
 import type { IRuleResult } from '@stoplight/spectral-core';
 import { generate, runTests, type Test } from 'insomnia-testing';
-import path from 'path';
 import { ActionFunction, redirect } from 'react-router-dom';
 import { parseApiSpec, resolveComponentSchemaRefs } from '../../common/api-specs';
 import { ACTIVITY_DEBUG, ACTIVITY_SPEC } from '../../common/constants';
@@ -11,11 +10,11 @@ import { generateId } from '../../common/misc';
 import * as models from '../../models';
 import { getById, update } from '../../models/helpers/request-operations';
 import { DEFAULT_ORGANIZATION_ID } from '../../models/organization';
-import { DEFAULT_PROJECT_ID, isRemoteProject } from '../../models/project';
+import { DEFAULT_PROJECT_ID } from '../../models/project';
 import { isRequest, Request } from '../../models/request';
 import { isRequestGroup, isRequestGroupId } from '../../models/request-group';
 import { UnitTest } from '../../models/unit-test';
-import { isCollection, Workspace } from '../../models/workspace';
+import { Workspace } from '../../models/workspace';
 import { WorkspaceMeta } from '../../models/workspace-meta';
 import { getSendRequestCallback } from '../../network/unit-test-feature';
 import { guard } from '../../utils/guard';
@@ -47,11 +46,6 @@ export const renameProjectAction: ActionFunction = async ({
   const project = await models.project.getById(projectId);
 
   guard(project, 'Project not found');
-
-  guard(
-    !isRemoteProject(project),
-    'Cannot rename remote project',
-  );
 
   await models.project.update(project, { name });
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { LoaderFunction, Outlet, useLoaderData } from 'react-router-dom';
-
 import { SortOrder } from '../../common/constants';
 import { database } from '../../common/database';
 import { fuzzyMatchAll } from '../../common/misc';
@@ -16,7 +15,7 @@ import { GrpcRequest } from '../../models/grpc-request';
 import { GrpcRequestMeta } from '../../models/grpc-request-meta';
 import { sortProjects } from '../../models/helpers/project';
 import { DEFAULT_ORGANIZATION_ID } from '../../models/organization';
-import { isRemoteProject, Project } from '../../models/project';
+import { Project } from '../../models/project';
 import { Request } from '../../models/request';
 import { isRequestGroup, RequestGroup } from '../../models/request-group';
 import { RequestGroupMeta } from '../../models/request-group-meta';
@@ -26,7 +25,6 @@ import {
 } from '../../models/websocket-request';
 import { Workspace } from '../../models/workspace';
 import { WorkspaceMeta } from '../../models/workspace-meta';
-import { StatusCandidate } from '../../sync/types';
 import { guard } from '../../utils/guard';
 
 type Collection = Child[];
@@ -45,7 +43,6 @@ export interface WorkspaceLoaderData {
   projects: Project[];
   requestTree: Child[];
   grpcRequests: GrpcRequest[];
-  syncItems: StatusCandidate[];
   collection: Collection;
 }
 export interface Child {
@@ -107,7 +104,7 @@ export const workspaceLoader: LoaderFunction = async ({
 
   const organizationProjects =
     organizationId === DEFAULT_ORGANIZATION_ID
-      ? allProjects.filter(proj => !isRemoteProject(proj))
+      ? allProjects
       : [activeProject];
 
   const projects = sortProjects(organizationProjects);

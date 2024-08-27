@@ -1,9 +1,6 @@
 import { LoaderFunction, ShouldRevalidateFunction, useRouteLoaderData } from 'react-router-dom';
 
-import { database } from '../../common/database';
-import { project } from '../../models';
 import { defaultOrganization, Organization } from '../../models/organization';
-import { isRemoteProject } from '../../models/project';
 
 export interface LoaderData {
   organizations: Organization[];

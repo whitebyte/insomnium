@@ -75,7 +75,6 @@ export const AppHeader: FC<AppHeaderProps> = ({
       gridLeft={(
         <Fragment>
           <LogoWrapper />
-
         </Fragment>
       )}
       gridCenter={gridCenter}
