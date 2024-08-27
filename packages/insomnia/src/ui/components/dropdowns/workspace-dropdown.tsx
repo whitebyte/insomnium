@@ -26,8 +26,7 @@ import { WorkspaceSettingsModal } from '../modals/workspace-settings-modal';
 console.log("[configGenerators] ", configGenerators);
 
 export const WorkspaceDropdown: FC = () => {
-  const { organizationId, projectId, workspaceId } = useParams<{ organizationId: string; projectId: string; workspaceId: string }>();
-  guard(organizationId, 'Expected organizationId');
+  const { projectId, workspaceId } = useParams<{ projectId: string; workspaceId: string }>();
   const {
     activeWorkspace,
     activeWorkspaceMeta,
@@ -143,7 +142,7 @@ export const WorkspaceDropdown: FC = () => {
                   fetcher.submit(
                     { name, workspaceId: activeWorkspace._id },
                     {
-                      action: `/organization/${organizationId}/project/${activeWorkspace.parentId}/workspace/update`,
+                      action: `/project/${activeWorkspace.parentId}/workspace/update`,
                       method: 'post',
                       encType: 'application/json',
                     }
@@ -211,7 +210,6 @@ export const WorkspaceDropdown: FC = () => {
           from={{ type: 'file' }}
           projectName={projectName}
           workspaceName={workspaceName}
-          organizationId={organizationId}
           defaultProjectId={projectId}
           defaultWorkspaceId={workspaceId}
         />

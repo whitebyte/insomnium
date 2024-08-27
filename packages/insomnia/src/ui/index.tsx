@@ -1,11 +1,6 @@
-
-import {
-
-  isDevelopment,
-} from '../common/constants';
+import { isDevelopment, } from '../common/constants';
 import { database } from '../common/database';
 import * as models from '../models';
-
 import { renderApp } from './renderApp';
 
 renderApp();

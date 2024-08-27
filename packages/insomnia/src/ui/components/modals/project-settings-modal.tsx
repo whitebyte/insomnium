@@ -14,7 +14,6 @@ export interface ProjectSettingsModalProps extends ModalProps {
 
 export const ProjectSettingsModal: FC<ProjectSettingsModalProps> = ({ project, onHide }) => {
   const modalRef = useRef<ModalHandle>(null);
-  const { organizationId } = useParams<{organizationId: string}>();
   const { submit } = useFetcher();
 
   useEffect(() => {
@@ -43,7 +42,7 @@ export const ProjectSettingsModal: FC<ProjectSettingsModalProps> = ({ project, o
                         name: e.currentTarget.value,
                       },
                       {
-                        action: `/organization/${organizationId}/project/${project._id}/rename`,
+                        action: `/project/${project._id}/rename`,
                         method: 'post',
                       }
                     );
@@ -58,7 +57,7 @@ export const ProjectSettingsModal: FC<ProjectSettingsModalProps> = ({ project, o
               onClick={() =>
                 submit(
                   {},
-                  { method: 'post', action: `/organization/${organizationId}/project/${project._id}/delete` }
+                  { method: 'post', action: `/project/${project._id}/delete` }
                 )
               }
               className="width-auto btn btn--clicky inline-block"

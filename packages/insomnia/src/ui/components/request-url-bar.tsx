@@ -86,11 +86,11 @@ export const RequestUrlBar = forwardRef<RequestUrlBarHandle, Props>(({
       setLoading(false);
     }
   }, [fetcher.state, setLoading]);
-  const { organizationId, projectId, workspaceId, requestId } = useParams() as { organizationId: string; projectId: string; workspaceId: string; requestId: string };
+  const { projectId, workspaceId, requestId } = useParams() as { projectId: string; workspaceId: string; requestId: string };
   const connect = (connectParams: ConnectActionParams) => {
     fetcher.submit(JSON.stringify(connectParams),
       {
-        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request/${requestId}/connect`,
+        action: `/project/${projectId}/workspace/${workspaceId}/debug/request/${requestId}/connect`,
         method: 'post',
         encType: 'application/json',
       });
@@ -99,7 +99,7 @@ export const RequestUrlBar = forwardRef<RequestUrlBarHandle, Props>(({
             debugger
     fetcher.submit(JSON.stringify(sendParams),
       {
-        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request/${requestId}/send`,
+        action: `/project/${projectId}/workspace/${workspaceId}/debug/request/${requestId}/send`,
         method: 'post',
         encType: 'application/json',
       });

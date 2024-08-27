@@ -9,11 +9,9 @@ import { ImportResourcesActionResult } from './import';
 export const importResourcesAction: ActionFunction = async ({ request }): Promise<ImportResourcesActionResult> => {
   const formData = await request.formData();
 
-  const organizationId = formData.get('organizationId');
   let projectId = formData.get('projectId');
   const workspaceId = formData.get('workspaceId');
 
-  guard(typeof organizationId === 'string', 'OrganizationId is required.');
   // when importing through insomnia://app/import, projectId is not provided
   if (typeof projectId !== 'string' || !projectId) {
     projectId = DEFAULT_PROJECT_ID;

@@ -8,7 +8,6 @@ import {
   Popover,
 } from 'react-aria-components';
 import { useFetcher } from 'react-router-dom';
-
 import {
   Project,
 } from '../../../models/project';
@@ -17,12 +16,10 @@ import ProjectSettingsModal from '../modals/project-settings-modal';
 
 interface Props {
   project: Project;
-  organizationId: string;
 }
 
-export const ProjectDropdown: FC<Props> = ({ project, organizationId }) => {
-  const [isProjectSettingsModalOpen, setIsProjectSettingsModalOpen] =
-    useState(false);
+export const ProjectDropdown: FC<Props> = ({ project }) => {
+  const [isProjectSettingsModalOpen, setIsProjectSettingsModalOpen] = useState(false);
   const deleteProjectFetcher = useFetcher();
 
   const projectActionList: {
@@ -46,7 +43,7 @@ export const ProjectDropdown: FC<Props> = ({ project, organizationId }) => {
           {},
           {
             method: 'post',
-            action: `/organization/${organizationId}/project/${projectId}/delete`,
+            action: `/project/${projectId}/delete`,
           }
         ),
     },

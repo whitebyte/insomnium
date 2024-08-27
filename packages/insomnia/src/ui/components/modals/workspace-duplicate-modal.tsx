@@ -16,7 +16,6 @@ interface WorkspaceDuplicateModalProps extends ModalProps {
 }
 
 export const WorkspaceDuplicateModal: FC<WorkspaceDuplicateModalProps> = ({ workspace, projects, onHide }) => {
-  const { organizationId } = useParams<{organizationId: string}>();
   const { Form } = useFetcher();
   const modalRef = useRef<ModalHandle>(null);
   useEffect(() => {
@@ -29,7 +28,7 @@ export const WorkspaceDuplicateModal: FC<WorkspaceDuplicateModalProps> = ({ work
         <ModalHeader>{`Duplicate ${workspace && getWorkspaceLabel(workspace).singular}`}</ModalHeader>
         <ModalBody className="wide">
           <Form
-            action={`/organization/${organizationId}/project/${workspace.parentId}/workspace/${workspace._id}/duplicate`}
+            action={`/project/${workspace.parentId}/workspace/${workspace._id}/duplicate`}
             method='post'
             id="workspace-duplicate-form"
             className="wide pad"

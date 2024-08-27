@@ -2,7 +2,6 @@ import { IconName } from '@fortawesome/fontawesome-svg-core';
 import React, { Fragment, useCallback, useState } from 'react';
 import { Button, Item, Menu, MenuTrigger, Popover } from 'react-aria-components';
 import { useFetcher, useParams, useRouteLoaderData } from 'react-router-dom';
-
 import { exportHarRequest } from '../../../common/har';
 import { toKebabCase } from '../../../common/misc';
 import { RENDER_PURPOSE_NO_RENDER } from '../../../common/render';
@@ -50,7 +49,7 @@ export const RequestActionsDropdown = ({
   const [actionPlugins, setActionPlugins] = useState<RequestAction[]>([]);
   const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
   const requestFetcher = useFetcher();
-  const { organizationId, projectId, workspaceId } = useParams() as { organizationId: string; projectId: string; workspaceId: string };
+  const { projectId, workspaceId } = useParams() as { projectId: string; workspaceId: string };
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
@@ -72,7 +71,7 @@ export const RequestActionsDropdown = ({
       selectText: true,
       onComplete: (name: string) => requestFetcher.submit({ name },
         {
-          action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request/${request?._id}/duplicate`,
+          action: `/project/${projectId}/workspace/${workspaceId}/debug/request/${request?._id}/duplicate`,
           method: 'post',
           encType: 'application/json',
         }),
@@ -144,7 +143,7 @@ export const RequestActionsDropdown = ({
     incrementDeletedRequests();
     requestFetcher.submit({ id: request._id },
       {
-        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request/delete`,
+        action: `/project/${projectId}/workspace/${workspaceId}/debug/request/delete`,
         method: 'post',
       });
   };

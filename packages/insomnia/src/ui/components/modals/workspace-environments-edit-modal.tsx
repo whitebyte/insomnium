@@ -227,7 +227,7 @@ const ReorderableListBox = props => {
 };
 
 export const WorkspaceEnvironmentsEditModal = (props: ModalProps) => {
-  const { organizationId, projectId, workspaceId } = useParams<{ organizationId: string; projectId: string; workspaceId: string }>();
+  const { projectId, workspaceId } = useParams<{ projectId: string; workspaceId: string }>();
   const routeData = useRouteLoaderData(
     ':workspaceId'
   ) as WorkspaceLoaderData;
@@ -264,7 +264,7 @@ export const WorkspaceEnvironmentsEditModal = (props: ModalProps) => {
       },
         {
           method: 'post',
-          action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/environment/set-active`,
+          action: `/project/${projectId}/workspace/${workspaceId}/environment/set-active`,
         });
     }
   }
@@ -275,7 +275,7 @@ export const WorkspaceEnvironmentsEditModal = (props: ModalProps) => {
     },
       {
         method: 'post',
-        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/environment/delete`,
+        action: `/project/${projectId}/workspace/${workspaceId}/environment/delete`,
       });
   }
 
@@ -287,7 +287,7 @@ export const WorkspaceEnvironmentsEditModal = (props: ModalProps) => {
       {
         encType: 'application/json',
         method: 'post',
-        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/environment/update`,
+        action: `/project/${projectId}/workspace/${workspaceId}/environment/update`,
       });
   };
 
@@ -327,7 +327,7 @@ export const WorkspaceEnvironmentsEditModal = (props: ModalProps) => {
                     },
                       {
                         method: 'post',
-                        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/environment/set-active`,
+                        action: `/project/${projectId}/workspace/${workspaceId}/environment/set-active`,
                       });
                   }
                 }}
@@ -363,7 +363,7 @@ export const WorkspaceEnvironmentsEditModal = (props: ModalProps) => {
                         {
                           encType: 'application/json',
                           method: 'post',
-                          action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/environment/create`,
+                          action: `/project/${projectId}/workspace/${workspaceId}/environment/create`,
                         });
                     }}
                   />
@@ -379,7 +379,7 @@ export const WorkspaceEnvironmentsEditModal = (props: ModalProps) => {
                         {
                           encType: 'application/json',
                           method: 'post',
-                          action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/environment/create`,
+                          action: `/project/${projectId}/workspace/${workspaceId}/environment/create`,
                         });
                     }}
                   />
@@ -484,7 +484,7 @@ export const WorkspaceEnvironmentsEditModal = (props: ModalProps) => {
                           environmentId: activeEnvironment._id,
                         }, {
                           method: 'post',
-                          action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/environment/duplicate`,
+                          action: `/project/${projectId}/workspace/${workspaceId}/environment/duplicate`,
                         });
                       }
                     }}

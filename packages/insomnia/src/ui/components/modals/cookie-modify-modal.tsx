@@ -23,7 +23,7 @@ export const CookieModifyModal = ((props: ModalProps & CookieModifyModalOptions)
   const modalRef = useRef<ModalHandle>(null);
   const [cookie, setCookie] = useState<Cookie | null>(props.cookie);
   const { activeCookieJar } = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData;
-  const { organizationId, projectId, workspaceId } = useParams<{ organizationId: string; projectId: string; workspaceId: string }>();
+  const { projectId, workspaceId } = useParams<{ projectId: string; workspaceId: string }>();
   const updateCookieJarFetcher = useFetcher<CookieJar>();
   useEffect(() => {
     modalRef.current?.show();
@@ -32,7 +32,7 @@ export const CookieModifyModal = ((props: ModalProps & CookieModifyModalOptions)
     updateCookieJarFetcher.submit(JSON.stringify({ patch, cookieJarId }), {
       encType: 'application/json',
       method: 'post',
-      action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/cookieJar/update`,
+      action: `/project/${projectId}/workspace/${workspaceId}/cookieJar/update`,
     });
   };
   const handleCookieUpdate = async (nextCookie: any) => {

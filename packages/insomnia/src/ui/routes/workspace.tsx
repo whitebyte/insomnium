@@ -14,7 +14,6 @@ import { Environment } from '../../models/environment';
 import { GrpcRequest } from '../../models/grpc-request';
 import { GrpcRequestMeta } from '../../models/grpc-request-meta';
 import { sortProjects } from '../../models/helpers/project';
-import { DEFAULT_ORGANIZATION_ID } from '../../models/organization';
 import { Project } from '../../models/project';
 import { Request } from '../../models/request';
 import { isRequestGroup, RequestGroup } from '../../models/request-group';
@@ -59,7 +58,7 @@ export const workspaceLoader: LoaderFunction = async ({
   request,
   params,
 }): Promise<WorkspaceLoaderData> => {
-  const { projectId, workspaceId, organizationId } = params;
+  const { projectId, workspaceId } = params;
   guard(workspaceId, 'Workspace ID is required');
   guard(projectId, 'Project ID is required');
 
@@ -97,17 +96,11 @@ export const workspaceLoader: LoaderFunction = async ({
 
   const activeApiSpec = await models.apiSpec.getByParentId(workspaceId);
   const clientCertificates = await models.clientCertificate.findByParentId(
-    workspaceId,
+    workspaceId
   );
 
   const allProjects = await models.project.all();
-
-  const organizationProjects =
-    organizationId === DEFAULT_ORGANIZATION_ID
-      ? allProjects
-      : [activeProject];
-
-  const projects = sortProjects(organizationProjects);
+  const projects = sortProjects(allProjects);
   const syncItemsList: (
     | Workspace
     | Environment
@@ -218,13 +211,6 @@ export const workspaceLoader: LoaderFunction = async ({
     parentIsCollapsed: false,
     ancestors: [],
   });
-  const syncItems: StatusCandidate[] = syncItemsList
-    .filter(canSync)
-    .map(i => ({
-      key: i._id,
-      name: i.name || '',
-      document: i,
-    }));
 
   function flattenTree() {
     const collection: Collection = [];
@@ -258,7 +244,6 @@ export const workspaceLoader: LoaderFunction = async ({
     requestTree,
     // TODO: remove this state hack when the grpc responses go somewhere else
     grpcRequests: grpcReqs,
-    syncItems,
     collection: flattenTree(),
   };
 };

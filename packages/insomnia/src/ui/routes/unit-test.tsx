@@ -22,7 +22,6 @@ import { SidebarFooter, SidebarLayout } from '../components/sidebar-layout';
 import { Button } from '../components/themed-button';
 import { TestRunStatus } from './test-results';
 import TestSuiteRoute from './test-suite';
-import { WorkspaceSyncDropdown } from '../components/dropdowns/workspace-sync-dropdown';
 
 interface LoaderData {
   unitTestSuites: UnitTestSuite[];
@@ -46,8 +45,7 @@ export const loader: LoaderFunction = async ({
 const TestRoute: FC = () => {
   const { unitTestSuites } = useLoaderData() as LoaderData;
 
-  const { organizationId, projectId, workspaceId, testSuiteId } = useParams() as {
-    organizationId: string;
+  const { projectId, workspaceId, testSuiteId } = useParams() as {
     projectId: string;
     workspaceId: string;
     testSuiteId: string;
@@ -88,7 +86,7 @@ const TestRoute: FC = () => {
                         },
                         {
                           method: 'post',
-                          action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/test/test-suite/new`,
+                          action: `/project/${projectId}/workspace/${workspaceId}/test/test-suite/new`,
                         }
                       );
                     },
@@ -110,7 +108,7 @@ const TestRoute: FC = () => {
                     onClick={e => {
                       e.preventDefault();
                       navigate(
-                        `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}`
+                        `/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}`
                       );
                     }}
                   >
@@ -137,7 +135,7 @@ const TestRoute: FC = () => {
                             {},
                             {
                               method: 'post',
-                              action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}/run-all-tests`,
+                              action: `/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}/run-all-tests`,
                             }
                           );
                         }}
@@ -151,7 +149,7 @@ const TestRoute: FC = () => {
                           deleteUnitTestSuiteFetcher.submit(
                             {},
                             {
-                              action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}/delete`,
+                              action: `/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}/delete`,
                               method: 'post',
                             }
                           )

@@ -1,5 +1,4 @@
 import '../css/styles.css';
-
 import type { IpcRendererEvent } from 'electron';
 import React, { Fragment, useEffect, useState } from 'react';
 import {
@@ -26,15 +25,12 @@ import {
 
 import { isDevelopment } from '../../common/constants';
 import * as models from '../../models';
-
 import { Settings } from '../../models/settings';
 import { isDesign } from '../../models/workspace';
 import { reloadPlugins } from '../../plugins';
 import { createPlugin } from '../../plugins/create';
 import { setTheme } from '../../plugins/misc';
-
 import { WorkspaceDropdown } from '../components/dropdowns/workspace-dropdown';
-
 import { showError, showModal } from '../components/modals';
 import { AlertModal } from '../components/modals/alert-modal';
 import { AskModal } from '../components/modals/ask-modal';
@@ -42,7 +38,6 @@ import { ImportModal } from '../components/modals/import-modal';
 
 import {
     SettingsModal,
-    showSettingsModal,
     TAB_INDEX_PLUGINS,
     TAB_INDEX_THEMES } from '../components/modals/settings-modal';
 
@@ -53,7 +48,6 @@ import { useSettingsPatcher } from '../hooks/use-request';
 import Modals from './modals';
 
 import { WorkspaceLoaderData } from './workspace';
-import { defaultOrganization } from '../../models/organization';
 
 export interface RootLoaderData {
     settings: Settings;
@@ -69,7 +63,6 @@ const Root = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { settings } = useLoaderData() as RootLoaderData;
-    const organizations = [defaultOrganization];
 
     const workspaceData = useRouteLoaderData(
         ':workspaceId'
@@ -189,8 +182,7 @@ const Root = () => {
         );
     }, [patchSettings]);
 
-    const { organizationId, projectId, workspaceId } = useParams() as {
-        organizationId: string;
+    const { projectId, workspaceId } = useParams() as {
         projectId?: string;
         workspaceId?: string;
     };
@@ -203,7 +195,7 @@ const Root = () => {
                 node: (
                     <Link data-testid="project">
                         <NavLink
-                            to={`/organization/${organizationId}/project/${workspaceData.activeProject._id}`}
+                            to={`/project/${workspaceData.activeProject._id}`}
                         >
                             {workspaceData.activeProject.name}
                         </NavLink>
@@ -228,7 +220,6 @@ const Root = () => {
                     <ImportModal
                         onHide={() => setImportUri('')}
                         projectName="Insomnium"
-                        organizationId={organizationId}
                         from={{ type: 'uri', defaultValue: importUri }}
                     />
                 )}
@@ -255,7 +246,7 @@ const Root = () => {
                                             {['spec', 'debug', 'test'].map(item => (
                                                 <NavLink
                                                     key={item}
-                                                    to={`/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/${item}`}
+                                                    to={`/project/${projectId}/workspace/${workspaceId}/${item}`}
                                                     className={({ isActive }) =>
                                                         `${
 isActive

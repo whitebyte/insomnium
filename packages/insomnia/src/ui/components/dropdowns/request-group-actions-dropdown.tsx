@@ -40,13 +40,13 @@ export const RequestGroupActionsDropdown = ({
   const dropdownRef = useRef<DropdownHandle>(null);
 
   const requestFetcher = useFetcher();
-  const { organizationId, projectId, workspaceId } = useParams() as { organizationId: string; projectId: string; workspaceId: string };
+  const { projectId, workspaceId } = useParams() as { projectId: string; workspaceId: string };
 
   const createRequest = ({ requestType, parentId, req }: { requestType: CreateRequestType; parentId: string; req?: Partial<Request> }) =>
     requestFetcher.submit(JSON.stringify({ requestType, parentId, req }),
       {
         encType: 'application/json',
-        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request/new`,
+        action: `/project/${projectId}/workspace/${workspaceId}/debug/request/new`,
         method: 'post',
       });
 
@@ -65,7 +65,7 @@ export const RequestGroupActionsDropdown = ({
       onComplete: async (name: string) => {
         requestFetcher.submit({ _id: requestGroup._id, name },
           {
-            action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request-group/duplicate`,
+            action: `/project/${projectId}/workspace/${workspaceId}/debug/request-group/duplicate`,
             method: 'post',
             encType: 'application/json',
           });
@@ -89,7 +89,7 @@ export const RequestGroupActionsDropdown = ({
     models.stats.incrementDeletedRequestsForDescendents(requestGroup);
     requestFetcher.submit({ id: requestGroup._id },
       {
-        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request-group/delete`,
+        action: `/project/${projectId}/workspace/${workspaceId}/debug/request-group/delete`,
         method: 'post',
       });
   };
@@ -202,7 +202,7 @@ export const RequestGroupActionsDropdown = ({
             selectText: true,
             onComplete: name => requestFetcher.submit({ parentId: requestGroup._id, name },
               {
-                action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request-group/new`,
+                action: `/project/${projectId}/workspace/${workspaceId}/debug/request-group/new`,
                 method: 'post',
               }),
           }),

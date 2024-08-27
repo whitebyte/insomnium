@@ -18,7 +18,7 @@ export const CookiesModal = ({ onHide }: ModalProps) => {
   const [filter, setFilter] = useState<string>('');
   const [visibleCookieIndexes, setVisibleCookieIndexes] = useState<number[] | null>(null);
   const { activeCookieJar } = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData;
-  const { organizationId, projectId, workspaceId } = useParams<{ organizationId: string; projectId: string; workspaceId: string }>();
+  const { projectId, workspaceId } = useParams<{ projectId: string; workspaceId: string }>();
   const updateCookieJarFetcher = useFetcher<CookieJar>();
   useEffect(() => {
     modalRef.current?.show();
@@ -28,7 +28,7 @@ export const CookiesModal = ({ onHide }: ModalProps) => {
     updateCookieJarFetcher.submit(JSON.stringify({ patch, cookieJarId }), {
       encType: 'application/json',
       method: 'post',
-      action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/cookieJar/update`,
+      action: `/project/${projectId}/workspace/${workspaceId}/cookieJar/update`,
     });
   };
   const filteredCookies = visibleCookieIndexes ? (activeCookieJar?.cookies || []).filter((_, i) => visibleCookieIndexes.includes(i)) : (activeCookieJar?.cookies || []);

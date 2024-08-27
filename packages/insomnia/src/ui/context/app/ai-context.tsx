@@ -18,11 +18,9 @@ const AIContext = createContext({
 
 export const AIProvider: FC<PropsWithChildren> = ({ children }) => {
   const {
-    organizationId,
     projectId,
     workspaceId,
   } = useParams() as {
-    organizationId: string;
     projectId: string;
     workspaceId: string;
   };
@@ -51,10 +49,10 @@ export const AIProvider: FC<PropsWithChildren> = ({ children }) => {
     if (fetcherHasNotRun || projectIdHasChanged) {
       aiAccessFetcher.submit({}, {
         method: 'post',
-        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/ai/access`,
+        action: `/project/${projectId}/workspace/${workspaceId}/ai/access`,
       });
     }
-  }, [aiAccessFetcher, organizationId, projectId, workspaceId, loggedIn, prevProjectId]);
+  }, [aiAccessFetcher, projectId, workspaceId, loggedIn, prevProjectId]);
 
   const isAIEnabled = aiAccessFetcher.data?.enabled ?? false;
 
@@ -94,13 +92,13 @@ export const AIProvider: FC<PropsWithChildren> = ({ children }) => {
         generateTests: () => {
           aiGenerateTestsFetcher.submit({}, {
             method: 'post',
-            action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/ai/generate/tests`,
+            action: `/project/${projectId}/workspace/${workspaceId}/ai/generate/tests`,
           });
         },
         generateTestsFromSpec: () => {
           aiGenerateTestsFromSpecFetcher.submit({}, {
             method: 'post',
-            action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/ai/generate/collection-and-tests`,
+            action: `/project/${projectId}/workspace/${workspaceId}/ai/generate/collection-and-tests`,
           });
         },
         access: {

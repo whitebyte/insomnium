@@ -90,10 +90,7 @@ export const WorkspaceCardDropdown: FC<Props> = props => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const {
-    organizationId,
-    projectId,
-  } = useParams() as { organizationId: string; projectId: string };
+  const { projectId } = useParams() as { projectId: string };
 
   const workspaceName = workspace.name;
   const projectName = project.name ?? getProductName();
@@ -131,7 +128,7 @@ export const WorkspaceCardDropdown: FC<Props> = props => {
                   fetcher.submit(
                     { name, workspaceId: workspace._id },
                     {
-                      action: `/organization/${organizationId}/project/${workspace.parentId}/workspace/update`,
+                      action: `/project/${workspace.parentId}/workspace/update`,
                       method: 'post',
                       encType: 'application/json',
                     }
@@ -186,7 +183,7 @@ export const WorkspaceCardDropdown: FC<Props> = props => {
                     fetcher.submit(
                       { workspaceId: workspace._id },
                       {
-                        action: `/organization/${organizationId}/project/${workspace.parentId}/workspace/delete`,
+                        action: `/project/${workspace.parentId}/workspace/delete`,
                         method: 'post',
                       }
                     );
@@ -210,7 +207,6 @@ export const WorkspaceCardDropdown: FC<Props> = props => {
           from={{ type: 'file' }}
           projectName={projectName}
           workspaceName={workspaceName}
-          organizationId={organizationId}
           defaultProjectId={projectId}
           defaultWorkspaceId={workspace._id}
         />

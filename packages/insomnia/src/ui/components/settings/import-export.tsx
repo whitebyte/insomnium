@@ -20,10 +20,9 @@ interface Props {
 
 export const ImportExport: FC<Props> = ({ hideSettingsModal }) => {
   const {
-    organizationId,
     projectId,
     workspaceId,
-  } = useParams() as { organizationId: string; projectId: string; workspaceId?: string };
+  } = useParams() as { projectId: string; workspaceId?: string };
 
   const workspaceData = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData | undefined;
   const activeWorkspaceName = workspaceData?.activeWorkspace.name;
@@ -33,9 +32,9 @@ export const ImportExport: FC<Props> = ({ hideSettingsModal }) => {
   useEffect(() => {
     const isIdleAndUninitialized = workspacesFetcher.state === 'idle' && !workspacesFetcher.data;
     if (isIdleAndUninitialized) {
-      workspacesFetcher.load(`/organization/${organizationId}/project/${projectId}`);
+      workspacesFetcher.load(`/project/${projectId}`);
     }
-  }, [organizationId, projectId, workspacesFetcher]);
+  }, [projectId, workspacesFetcher]);
   const projectLoaderData = workspacesFetcher?.data as ProjectLoaderData;
   const workspacesForActiveProject = projectLoaderData?.workspaces.map(w => w.workspace) || [];
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -112,7 +111,6 @@ export const ImportExport: FC<Props> = ({ hideSettingsModal }) => {
           from={{ type: 'file' }}
           projectName={projectName}
           workspaceName={activeWorkspaceName}
-          organizationId={organizationId}
           defaultProjectId={projectId}
           defaultWorkspaceId={workspaceId}
         />

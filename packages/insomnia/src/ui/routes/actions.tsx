@@ -9,7 +9,6 @@ import { importResourcesToWorkspace, scanResources } from '../../common/import';
 import { generateId } from '../../common/misc';
 import * as models from '../../models';
 import { getById, update } from '../../models/helpers/request-operations';
-import { DEFAULT_ORGANIZATION_ID } from '../../models/organization';
 import { DEFAULT_PROJECT_ID } from '../../models/project';
 import { isRequest, Request } from '../../models/request';
 import { isRequestGroup, isRequestGroupId } from '../../models/request-group';
@@ -21,14 +20,12 @@ import { guard } from '../../utils/guard';
 
 // Project
 export const createNewProjectAction: ActionFunction = async ({ request, params }) => {
-  const { organizationId } = params;
-  guard(organizationId, 'Organization ID is required');
   const formData = await request.formData();
   const name = formData.get('name');
   guard(typeof name === 'string', 'Name is required');
   const project = await models.project.create({ name });
 
-  return redirect(`/organization/${organizationId}/project/${project._id}`);
+  return redirect(`/project/${project._id}`);
 };
 
 export const renameProjectAction: ActionFunction = async ({
@@ -53,8 +50,7 @@ export const renameProjectAction: ActionFunction = async ({
 };
 
 export const deleteProjectAction: ActionFunction = async ({ params }) => {
-  const { organizationId, projectId } = params;
-  guard(organizationId, 'Organization ID is required');
+  const { projectId } = params;
   guard(projectId, 'Project ID is required');
   const project = await models.project.getById(projectId);
   guard(project, 'Project not found');
@@ -62,7 +58,7 @@ export const deleteProjectAction: ActionFunction = async ({ params }) => {
   await models.stats.incrementDeletedRequestsForDescendents(project);
   await models.project.remove(project);
 
-  return redirect(`/organization/${DEFAULT_ORGANIZATION_ID}/project/${DEFAULT_PROJECT_ID}`);
+  return redirect(`/project/${DEFAULT_PROJECT_ID}`);
 };
 
 // Workspace
@@ -70,8 +66,7 @@ export const createNewWorkspaceAction: ActionFunction = async ({
   params,
   request,
 }) => {
-  const { organizationId, projectId } = params;
-  guard(organizationId, 'Organization ID is required');
+  const { projectId } = params;
   guard(projectId, 'Project ID is required');
 
   const project = await models.project.getById(projectId);
@@ -103,12 +98,11 @@ export const createNewWorkspaceAction: ActionFunction = async ({
   // Create default env, cookie jar, and meta
   await models.environment.getOrCreateForParentId(workspace._id);
   await models.cookieJar.getOrCreateForParentId(workspace._id);
-  const workspaceMeta = await models.workspaceMeta.getOrCreateByParentId(workspace._id);
 
   await database.flushChanges(flushId);
 
   return redirect(
-    `/organization/${organizationId}/project/${projectId}/workspace/${workspace._id}/${workspace.scope === 'collection' ? ACTIVITY_DEBUG : ACTIVITY_SPEC
+    `/project/${projectId}/workspace/${workspace._id}/${workspace.scope === 'collection' ? ACTIVITY_DEBUG : ACTIVITY_SPEC
     }`
   );
 };
@@ -117,7 +111,7 @@ export const deleteWorkspaceAction: ActionFunction = async ({
   params,
   request,
 }) => {
-  const { organizationId, projectId } = params;
+  const { projectId } = params;
   guard(projectId, 'projectId is required');
 
   const project = await models.project.getById(projectId);
@@ -134,13 +128,11 @@ export const deleteWorkspaceAction: ActionFunction = async ({
   await models.stats.incrementDeletedRequestsForDescendents(workspace);
   await models.workspace.remove(workspace);
 
-  console.log(`redirecting to /organization/${organizationId}/project/${projectId}`);
-  return redirect(`/organization/${organizationId}/project/${projectId}`);
+  console.log(`redirecting to /project/${projectId}`);
+  return redirect(`/project/${projectId}`);
 };
 
 export const duplicateWorkspaceAction: ActionFunction = async ({ request, params }) => {
-  const { organizationId } = params;
-  guard(organizationId, 'Organization Id is required');
   const formData = await request.formData();
   const projectId = formData.get('projectId');
   guard(typeof projectId === 'string', 'Project ID is required');
@@ -181,7 +173,7 @@ export const duplicateWorkspaceAction: ActionFunction = async ({ request, params
   await models.workspaceMeta.getOrCreateByParentId(newWorkspace._id);
 
   return redirect(
-    `/organization/${organizationId}/project/${projectId}/workspace/${newWorkspace._id}/${newWorkspace.scope === 'collection' ? ACTIVITY_DEBUG : ACTIVITY_SPEC
+    `/project/${projectId}/workspace/${newWorkspace._id}/${newWorkspace.scope === 'collection' ? ACTIVITY_DEBUG : ACTIVITY_SPEC
     }`
   );
 };
@@ -220,7 +212,7 @@ export const createNewTestSuiteAction: ActionFunction = async ({
   request,
   params,
 }) => {
-  const { organizationId, workspaceId, projectId } = params;
+  const { workspaceId, projectId } = params;
   guard(typeof workspaceId === 'string', 'Workspace ID is required');
   const formData = await request.formData();
   const name = formData.get('name');
@@ -231,11 +223,11 @@ export const createNewTestSuiteAction: ActionFunction = async ({
     name,
   });
 
-  return redirect(`/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/test/test-suite/${unitTestSuite._id}`);
+  return redirect(`/project/${projectId}/workspace/${workspaceId}/test/test-suite/${unitTestSuite._id}`);
 };
 
 export const deleteTestSuiteAction: ActionFunction = async ({ params }) => {
-  const { organizationId, workspaceId, projectId, testSuiteId } = params;
+  const { workspaceId, projectId, testSuiteId } = params;
   guard(typeof testSuiteId === 'string', 'Test Suite ID is required');
   guard(typeof workspaceId === 'string', 'Workspace ID is required');
   guard(typeof projectId === 'string', 'Project ID is required');
@@ -246,13 +238,13 @@ export const deleteTestSuiteAction: ActionFunction = async ({ params }) => {
 
   await models.unitTestSuite.remove(unitTestSuite);
 
-  return redirect(`/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/test`);
+  return redirect(`/project/${projectId}/workspace/${workspaceId}/test`);
 };
 
 export const runAllTestsAction: ActionFunction = async ({
   params,
 }) => {
-  const { organizationId, projectId, workspaceId, testSuiteId } = params;
+  const { projectId, workspaceId, testSuiteId } = params;
   guard(typeof projectId === 'string', 'Project ID is required');
   guard(typeof workspaceId === 'string', 'Workspace ID is required');
   guard(typeof testSuiteId === 'string', 'Test Suite ID is required');
@@ -281,7 +273,7 @@ export const runAllTestsAction: ActionFunction = async ({
     parentId: workspaceId,
   });
 
-  return redirect(`/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/test/test-suite/${testSuiteId}/test-result/${testResult._id}`);
+  return redirect(`/project/${projectId}/workspace/${workspaceId}/test/test-suite/${testSuiteId}/test-result/${testResult._id}`);
 };
 
 export const renameTestSuiteAction: ActionFunction = async ({ request, params }) => {
@@ -364,7 +356,7 @@ export const updateTestAction: ActionFunction = async ({ request, params }) => {
 };
 
 export const runTestAction: ActionFunction = async ({ params }) => {
-  const { organizationId, projectId, workspaceId, testSuiteId, testId } = params;
+  const { projectId, workspaceId, testSuiteId, testId } = params;
   guard(typeof testId === 'string', 'Test ID is required');
 
   const unitTest = await database.getWhere<UnitTest>(models.unitTest.type, {
@@ -390,7 +382,7 @@ export const runTestAction: ActionFunction = async ({ params }) => {
     parentId: unitTest.parentId,
   });
 
-  return redirect(`/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/test/test-suite/${testSuiteId}/test-result/${testResult._id}`);
+  return redirect(`/project/${projectId}/workspace/${workspaceId}/test/test-suite/${testSuiteId}/test-result/${testResult._id}`);
 };
 
 // Api Spec
@@ -422,7 +414,7 @@ export const updateApiSpecAction: ActionFunction = async ({
 export const generateCollectionFromApiSpecAction: ActionFunction = async ({
   params,
 }) => {
-  const { organizationId, projectId, workspaceId } = params;
+  const { projectId, workspaceId } = params;
 
   guard(typeof projectId === 'string', 'Project ID is required');
   guard(typeof workspaceId === 'string', 'Workspace ID is required');
@@ -434,22 +426,7 @@ export const generateCollectionFromApiSpecAction: ActionFunction = async ({
   }
 
   const workspace = await models.workspace.getById(workspaceId);
-
   guard(workspace, 'Workspace not found');
-
-  const workspaceMeta = await models.workspaceMeta.getOrCreateByParentId(workspaceId);
-
-  // FIXME get rid of git
-  // const isLintError = (result: IRuleResult) => result.severity === 0;
-  // const rulesetPath = path.join(
-  //   process.env['INSOMNIA_DATA_PATH'] || window.app.getPath('userData'),
-  //   `version-control/git/${workspaceMeta?.gitRepositoryId}/other/.spectral.yaml`,
-  // );
-  //
-  // const results = (await window.main.spectralRun({ contents: apiSpec.contents, rulesetPath })).filter(isLintError);
-  // if (apiSpec.contents && results && results.length) {
-  //   throw new Error('Error Generating Configuration');
-  // }
 
   await scanResources({
     content: apiSpec.contents,
@@ -459,13 +436,11 @@ export const generateCollectionFromApiSpecAction: ActionFunction = async ({
     workspaceId,
   });
 
-  return redirect(`/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/${ACTIVITY_DEBUG}`);
+  return redirect(`/project/${projectId}/workspace/${workspaceId}/${ACTIVITY_DEBUG}`);
 };
 
 export const generateCollectionAndTestsAction: ActionFunction = async ({ params }) => {
-  const { organizationId, projectId, workspaceId } = params;
-
-  guard(typeof organizationId === 'string', 'Organization ID is required');
+  const { projectId, workspaceId } = params;
   guard(typeof projectId === 'string', 'Project ID is required');
   guard(typeof workspaceId === 'string', 'Workspace ID is required');
 
@@ -476,20 +451,6 @@ export const generateCollectionAndTestsAction: ActionFunction = async ({ params 
   const workspace = await models.workspace.getById(workspaceId);
 
   guard(workspace, 'Workspace not found');
-
-  const workspaceMeta = await models.workspaceMeta.getOrCreateByParentId(workspaceId);
-
-  // FIXME get rid of git
-  // const isLintError = (result: IRuleResult) => result.severity === 0;
-  // const rulesetPath = path.join(
-  //   process.env['INSOMNIA_DATA_PATH'] || window.app.getPath('userData'),
-  //   `version-control/git/${workspaceMeta?.gitRepositoryId}/other/.spectral.yaml`,
-  // );
-  //
-  // const results = (await window.main.spectralRun({ contents: apiSpec.contents, rulesetPath })).filter(isLintError);
-  // if (apiSpec.contents && results && results.length) {
-  //   throw new Error('Error Generating Configuration');
-  // }
 
   const resources = await scanResources({
     content: apiSpec.contents,
@@ -510,6 +471,7 @@ export const generateCollectionAndTestsAction: ActionFunction = async ({ params 
 
   await Promise.all(requests.map(request => models.request.create(request)));
 
+  // FIXME
   const aiTestSuite = await models.unitTestSuite.create({
     name: 'AI Generated Tests',
     parentId: workspaceId,
@@ -566,27 +528,6 @@ export const generateCollectionAndTestsAction: ActionFunction = async ({ params 
         }
 
         const methodInfo = resolveComponentSchemaRefs(spec, getMethodInfo(request));
-
-        // const response = await window.main.insomniaFetch<{ test: { requestId: string } }>({
-        //   method: 'POST',
-        //   origin: 'https://ai.insomnia.rest',
-        //   path: '/v1/generate-test',
-        //   sessionId: session.getCurrentSessionId(),
-        //   data: {
-        //     teamId: organizationId,
-        //     request: requests.find(r => r._id === test.requestId),
-        //     methodInfo,
-        //   },
-        // });
-
-        // const aiTest = response.test;
-
-        // await models.unitTest.create({ ...aiTest, parentId: aiTestSuite._id, requestId: test.requestId });
-        // writer.write({
-        //   progress: ++progress,
-        //   total,
-        // });
-
       } catch (err) {
         console.log(err);
         writer.write({
@@ -602,9 +543,8 @@ export const generateCollectionAndTestsAction: ActionFunction = async ({ params 
 };
 
 export const generateTestsAction: ActionFunction = async ({ params }) => {
-  const { organizationId, projectId, workspaceId } = params;
+  const { projectId, workspaceId } = params;
 
-  guard(typeof organizationId === 'string', 'Organization ID is required');
   guard(typeof projectId === 'string', 'Project ID is required');
   guard(typeof workspaceId === 'string', 'Workspace ID is required');
 
@@ -648,25 +588,7 @@ export const generateTestsAction: ActionFunction = async ({ params }) => {
   for (const test of tests) {
     async function generateTest() {
       try {
-        // const response = await window.main.insomniaFetch<{ test: { requestId: string } }>({
-        //   method: 'POST',
-        //   origin: 'https://ai.insomnia.rest',
-        //   path: '/v1/generate-test',
-        //   sessionId: session.getCurrentSessionId(),
-        //   data: {
-        //     teamId: organizationId,
-        //     request: requests.find(r => r._id === test.requestId),
-        //   },
-        // });
-
-        // const aiTest = response.test;
-
-        // await models.unitTest.create({ ...aiTest, parentId: aiTestSuite._id, requestId: test.requestId });
-
-        // writer.write({
-        //   progress: ++progress,
-        //   total,
-        // });
+        // FIXME
       } catch (err) {
         console.log(err);
         writer.write({
@@ -680,35 +602,6 @@ export const generateTestsAction: ActionFunction = async ({ params }) => {
   }
 
   return progressStream;
-};
-
-export const accessAIApiAction: ActionFunction = async ({ params }) => {
-
-  throw new Error("accesAI is disabled");
-
-  // const { organizationId, projectId, workspaceId } = params;
-
-  // guard(typeof organizationId === 'string', 'Organization ID is required');
-  // guard(typeof projectId === 'string', 'Project ID is required');
-  // guard(typeof workspaceId === 'string', 'Workspace ID is required');
-
-  // try {
-  //   const response = await window.main.insomniaFetch<{ enabled: boolean }>({
-  //     method: 'POST',
-  //     origin: 'https://ai.insomnia.rest',
-  //     path: '/v1/access',
-  //     sessionId: session.getCurrentSessionId(),
-  //     data: {
-  //       teamId: organizationId,
-  //     },
-  //   });
-
-  //   return {
-  //     enabled: response.enabled,
-  //   };
-  // } catch (err) {
-  //   return { enabled: false };
-  // }
 };
 
 export const createEnvironmentAction: ActionFunction = async ({

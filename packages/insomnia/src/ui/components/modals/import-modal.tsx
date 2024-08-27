@@ -429,7 +429,6 @@ const CurlIcon = (props: React.SVGProps<SVGSVGElement>) => {
 };
 
 interface ImportModalProps extends ModalProps {
-  organizationId: string;
   projectName: string;
   // undefined when not using preferences
   workspaceName?: string;
@@ -455,7 +454,6 @@ export const ImportModal: FC<ImportModalProps> = ({
   workspaceName,
   defaultProjectId,
   defaultWorkspaceId,
-  organizationId,
   from,
   onHide,
 }) => {
@@ -481,7 +479,6 @@ export const ImportModal: FC<ImportModalProps> = ({
         <ModalHeader>{header}</ModalHeader>
         {scanResourcesFetcher.data && scanResourcesFetcher.data.errors.length === 0 ? (
           <ImportResourcesForm
-            organizationId={organizationId}
             defaultProjectId={defaultProjectId}
             defaultWorkspaceId={shouldImportToWorkspace ? defaultWorkspaceId : ''}
             scanResult={scanResourcesFetcher.data}
@@ -678,20 +675,17 @@ const ImportResourcesForm = ({
   scanResult,
   defaultProjectId,
   defaultWorkspaceId,
-  organizationId,
   onSubmit,
   errors,
   disabled,
 }: {
   scanResult: ScanForResourcesActionResult;
-  organizationId: string;
   defaultProjectId?: string;
   defaultWorkspaceId?: string;
   errors?: string[];
   onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
   disabled: boolean;
-}
-) => {
+}) => {
   const id = useId();
 
   return (
@@ -709,7 +703,6 @@ const ImportResourcesForm = ({
           action="/import/resources"
           id={id}
         >
-          <input hidden name="organizationId" readOnly value={organizationId} />
           <input hidden name="projectId" readOnly value={defaultProjectId} />
           <input hidden name="workspaceId" readOnly value={defaultWorkspaceId} />
         </form>

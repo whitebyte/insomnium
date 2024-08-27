@@ -12,14 +12,14 @@ export const PlaceholderRequestPane: FC = () => {
   } = useRouteLoaderData('root') as RootLoaderData;
   const { hotKeyRegistry } = settings;
   const requestFetcher = useFetcher();
-  const { organizationId, projectId, workspaceId } = useParams() as { organizationId: string; projectId: string; workspaceId: string };
+  const { projectId, workspaceId } = useParams() as { projectId: string; workspaceId: string };
   const createHttpRequest = useCallback(() =>
     requestFetcher.submit({ requestType: 'HTTP', parentId: workspaceId },
       {
-        action: `/organization/${organizationId}/project/${projectId}/workspace/${workspaceId}/debug/request/new`,
+        action: `/project/${projectId}/workspace/${workspaceId}/debug/request/new`,
         method: 'post',
         encType: 'application/json',
-      }), [requestFetcher, organizationId, projectId, workspaceId]);
+      }), [requestFetcher, projectId, workspaceId]);
 
   return (
     <Pane type="request">
