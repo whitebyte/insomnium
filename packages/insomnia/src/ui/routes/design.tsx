@@ -252,7 +252,6 @@ const Design: FC = () => {
                 gridRowStart: 6,
               }}
             >
-              <WorkspaceSyncDropdown />
             </div>
           </ErrorBoundary>
         ) : (
@@ -263,7 +262,6 @@ const Design: FC = () => {
                 gridRowStart: 6,
               }}
             >
-                <WorkspaceSyncDropdown />
             </div>
           </Fragment>
         )

@@ -5,27 +5,17 @@ import {
   createMemoryRouter,
   matchPath,
   Outlet,
-  RouterProvider,
 } from 'react-router-dom';
 
 import {
   ACTIVITY_DEBUG,
   ACTIVITY_SPEC,
   getProductName,
-  isDevelopment,
 } from '../common/constants';
-import { database } from '../common/database';
 import { initializeLogging } from '../common/log';
-import * as models from '../models';
 import { DEFAULT_ORGANIZATION_ID } from '../models/organization';
 import { DEFAULT_PROJECT_ID } from '../models/project';
-import { initNewOAuthSession } from '../network/o-auth-2/get-token';
-import { init as initPlugins } from '../plugins';
-import { applyColorScheme } from '../plugins/misc';
-import { guard } from '../utils/guard';
-import { AppLoadingIndicator } from './components/app-loading-indicator';
 import { ErrorRoute } from './routes/error';
-import { shouldOrganizationsRevalidate } from './routes/organization';
 import Root from './routes/root';
 
 const Project = lazy(() => import('./routes/project'));
@@ -663,5 +653,4 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
   });
 
   return router;
-
 };
