@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { useParams, useRouteLoaderData } from 'react-router-dom';
 import styled from 'styled-components';
-
 import { getCommonHeaderNames, getCommonHeaderValues } from '../../../common/common-headers';
 import { generateId } from '../../../common/misc';
 import { getRenderedGrpcRequest, getRenderedGrpcRequestMessage, RENDER_PURPOSE_SEND } from '../../../common/render';
@@ -31,6 +30,7 @@ import { Button } from '../themed-button';
 import { Tooltip } from '../tooltip';
 import { EmptyStatePane } from './empty-state-pane';
 import { Pane, PaneBody, PaneHeader } from './pane';
+
 interface Props {
   grpcState: GrpcRequestState;
   setGrpcState: (states: GrpcRequestState) => void;
@@ -101,15 +101,14 @@ export const GrpcRequestPane: FunctionComponent<Props> = ({
   }, [activeRequest]);
 
   const editorRef = useRef<CodeEditorHandle>(null);
-  const activeRequestSyncVersion = useActiveRequestSyncVCSVersion();
   const { workspaceId, requestId } = useParams() as { workspaceId: string; requestId: string };
   const patchRequest = useRequestSetter();
   const {
     activeEnvironment,
   } = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData;
   const environmentId = activeEnvironment._id;
-  // Reset the response pane state when we switch requests, the environment gets modified, or the (Git|Sync)VCS version changes
-  const uniquenessKey = `${activeEnvironment.modified}::${requestId}::${activeRequestSyncVersion}`;
+  // Reset the response pane state when we switch requests or the environment gets modified
+  const uniquenessKey = `${activeEnvironment.modified}::${requestId}`;
 
   const methodType = method?.type;
   const handleRequestSend = async () => {

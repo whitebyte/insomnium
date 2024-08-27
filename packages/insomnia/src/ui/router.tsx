@@ -1,5 +1,4 @@
 import './rendererListeners';
-
 import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import {
@@ -630,23 +629,7 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                           (
                             await import('./routes/actions')
                           ).createNewProjectAction(...args),
-                      },
-                      {
-                        path: ':projectId/remote-collections',
-                        loader: async (...args) =>
-                          (
-                            await import('./routes/remote-collections')
-                          ).remoteCollectionsLoader(...args),
-                        children: [
-                          {
-                            path: 'pull',
-                            action: async (...args) =>
-                              (
-                                await import('./routes/remote-collections')
-                              ).pullRemoteCollectionAction(...args),
-                          },
-                        ],
-                      },
+                      }
                     ],
                   },
                 ],

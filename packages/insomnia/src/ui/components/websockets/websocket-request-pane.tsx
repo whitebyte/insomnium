@@ -254,7 +254,7 @@ export const WebSocketRequestPane: FC<Props> = ({ environment }) => {
   const [isRequestSettingsModalOpen, setIsRequestSettingsModalOpen] = useState(false);
 
   const patchRequest = useRequestSetter();
-  // Reset the response pane state when we switch requests, the environment gets modified, or the (Git|Sync)VCS version changes
+  // Reset the response pane state when we switch requests or the environment gets modified
   const uniqueKey = `${environment?.modified}::${requestId}::${activeRequestMeta.activeResponseId}`;
 
   return (

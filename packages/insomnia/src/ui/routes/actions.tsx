@@ -2,7 +2,6 @@ import type { IRuleResult } from '@stoplight/spectral-core';
 import { generate, runTests, type Test } from 'insomnia-testing';
 import path from 'path';
 import { ActionFunction, redirect } from 'react-router-dom';
-
 import { parseApiSpec, resolveComponentSchemaRefs } from '../../common/api-specs';
 import { ACTIVITY_DEBUG, ACTIVITY_SPEC } from '../../common/constants';
 import { database } from '../../common/database';
@@ -19,8 +18,6 @@ import { UnitTest } from '../../models/unit-test';
 import { isCollection, Workspace } from '../../models/workspace';
 import { WorkspaceMeta } from '../../models/workspace-meta';
 import { getSendRequestCallback } from '../../network/unit-test-feature';
-import { initializeLocalBackendProjectAndMarkForSync } from '../../sync/vcs/initialize-backend-project';
-import { getVCS } from '../../sync/vcs/vcs';
 import { guard } from '../../utils/guard';
 
 // Project
@@ -143,17 +140,6 @@ export const deleteWorkspaceAction: ActionFunction = async ({
   await models.stats.incrementDeletedRequestsForDescendents(workspace);
   await models.workspace.remove(workspace);
 
-  try {
-    const vcs = getVCS();
-    if (vcs) {
-      const backendProject = await vcs._getBackendProjectByRootDocument(workspace._id);
-      await vcs._removeProject(backendProject);
-
-      console.log({ projectsLOCAL: await vcs.localBackendProjects() });
-    }
-  } catch (err) {
-    console.warn('Failed to remove project from VCS', err);
-  }
   console.log(`redirecting to /organization/${organizationId}/project/${projectId}`);
   return redirect(`/organization/${organizationId}/project/${projectId}`);
 };
@@ -199,19 +185,6 @@ export const duplicateWorkspaceAction: ActionFunction = async ({ request, params
   await models.environment.getOrCreateForParentId(newWorkspace._id);
   await models.cookieJar.getOrCreateForParentId(newWorkspace._id);
   await models.workspaceMeta.getOrCreateByParentId(newWorkspace._id);
-
-  try {
-    // Mark for sync if logged in and in the expected project
-    const vcs = getVCS();
-    // if (session.isLoggedIn() && vcs && isRemoteProject(duplicateToProject)) {
-    //   await initializeLocalBackendProjectAndMarkForSync({
-    //     vcs: vcs.newInstance(),
-    //     workspace: newWorkspace,
-    //   });
-    // }
-  } catch (e) {
-    console.warn('Failed to initialize local backend project', e);
-  }
 
   return redirect(
     `/organization/${organizationId}/project/${projectId}/workspace/${newWorkspace._id}/${newWorkspace.scope === 'collection' ? ACTIVITY_DEBUG : ACTIVITY_SPEC
@@ -472,16 +445,17 @@ export const generateCollectionFromApiSpecAction: ActionFunction = async ({
 
   const workspaceMeta = await models.workspaceMeta.getOrCreateByParentId(workspaceId);
 
-  const isLintError = (result: IRuleResult) => result.severity === 0;
-  const rulesetPath = path.join(
-    process.env['INSOMNIA_DATA_PATH'] || window.app.getPath('userData'),
-    `version-control/git/${workspaceMeta?.gitRepositoryId}/other/.spectral.yaml`,
-  );
-
-  const results = (await window.main.spectralRun({ contents: apiSpec.contents, rulesetPath })).filter(isLintError);
-  if (apiSpec.contents && results && results.length) {
-    throw new Error('Error Generating Configuration');
-  }
+  // FIXME get rid of git
+  // const isLintError = (result: IRuleResult) => result.severity === 0;
+  // const rulesetPath = path.join(
+  //   process.env['INSOMNIA_DATA_PATH'] || window.app.getPath('userData'),
+  //   `version-control/git/${workspaceMeta?.gitRepositoryId}/other/.spectral.yaml`,
+  // );
+  //
+  // const results = (await window.main.spectralRun({ contents: apiSpec.contents, rulesetPath })).filter(isLintError);
+  // if (apiSpec.contents && results && results.length) {
+  //   throw new Error('Error Generating Configuration');
+  // }
 
   await scanResources({
     content: apiSpec.contents,
@@ -511,16 +485,17 @@ export const generateCollectionAndTestsAction: ActionFunction = async ({ params 
 
   const workspaceMeta = await models.workspaceMeta.getOrCreateByParentId(workspaceId);
 
-  const isLintError = (result: IRuleResult) => result.severity === 0;
-  const rulesetPath = path.join(
-    process.env['INSOMNIA_DATA_PATH'] || window.app.getPath('userData'),
-    `version-control/git/${workspaceMeta?.gitRepositoryId}/other/.spectral.yaml`,
-  );
-
-  const results = (await window.main.spectralRun({ contents: apiSpec.contents, rulesetPath })).filter(isLintError);
-  if (apiSpec.contents && results && results.length) {
-    throw new Error('Error Generating Configuration');
-  }
+  // FIXME get rid of git
+  // const isLintError = (result: IRuleResult) => result.severity === 0;
+  // const rulesetPath = path.join(
+  //   process.env['INSOMNIA_DATA_PATH'] || window.app.getPath('userData'),
+  //   `version-control/git/${workspaceMeta?.gitRepositoryId}/other/.spectral.yaml`,
+  // );
+  //
+  // const results = (await window.main.spectralRun({ contents: apiSpec.contents, rulesetPath })).filter(isLintError);
+  // if (apiSpec.contents && results && results.length) {
+  //   throw new Error('Error Generating Configuration');
+  // }
 
   const resources = await scanResources({
     content: apiSpec.contents,

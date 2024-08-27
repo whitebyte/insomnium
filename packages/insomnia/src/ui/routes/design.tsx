@@ -12,7 +12,6 @@ import {
 import { useToggle } from 'react-use';
 import styled from 'styled-components';
 import { SwaggerUIBundle } from 'swagger-ui-dist';
-
 import { parseApiSpec } from '../../common/api-specs';
 import { ACTIVITY_SPEC } from '../../common/constants';
 import { debounce } from '../../common/misc';
@@ -24,12 +23,12 @@ import {
   CodeEditorHandle,
 } from '../components/codemirror/code-editor';
 import { DesignEmptyState } from '../components/design-empty-state';
-
 import { ErrorBoundary } from '../components/error-boundary';
 import { Notice, NoticeTable } from '../components/notice-table';
 import { SidebarLayout } from '../components/sidebar-layout';
 import { SpecEditorSidebar } from '../components/spec-editor/spec-editor-sidebar';
 import { Tooltip } from '../components/tooltip';
+
 const EmptySpaceHelper = styled.div({
   display: 'flex',
   alignItems: 'flex-start',
@@ -84,24 +83,23 @@ export const loader: LoaderFunction = async ({
   const workspace = await models.workspace.getById(workspaceId);
   guard(workspace, 'Workspace not found');
 
-  const workspaceMeta = await models.workspaceMeta.getByParentId(workspaceId);
-
   let lintMessages: LintMessage[] = [];
-
   let rulesetPath = '';
 
-  try {
-    const spectralRulesetPath = path.join(
-      process.env['INSOMNIA_DATA_PATH'] || window.app.getPath('userData'),
-      `version-control/git/${workspaceMeta?.gitRepositoryId}/other/.spectral.yaml`,
-    );
-
-    if ((await stat(spectralRulesetPath)).isFile()) {
-      rulesetPath = spectralRulesetPath;
-    }
-  } catch (err) {
-    // Ignore
-  }
+  // FIXME get rid of git
+  //
+  // try {
+  //   const spectralRulesetPath = path.join(
+  //     process.env['INSOMNIA_DATA_PATH'] || window.app.getPath('userData'),
+  //     `version-control/git/${workspaceMeta?.gitRepositoryId}/other/.spectral.yaml`,
+  //   );
+  //
+  //   if ((await stat(spectralRulesetPath)).isFile()) {
+  //     rulesetPath = spectralRulesetPath;
+  //   }
+  // } catch (err) {
+  //   // Ignore
+  // }
 
   if (apiSpec.contents && apiSpec.contents.length !== 0) {
     try {
@@ -224,8 +222,7 @@ const Design: FC = () => {
     [editor]
   );
 
-  const syncVersion = useActiveApiSpecSyncVCSVersion();
-  const uniquenessKey = `${apiSpec?._id}::${apiSpec?.created}::${gitVersion}::${syncVersion}`;
+  const uniquenessKey = `${apiSpec?._id}::${apiSpec?.created}`;
 
   return (
     <SidebarLayout
