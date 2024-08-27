@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-
 import { globalBeforeEach } from '../../__jest__/before-each';
-import { chunkArray } from '../../sync/vcs/vcs';
 import {
   debounce,
   filterHeaders,
@@ -248,33 +246,6 @@ describe('fuzzyMatchAll()', () => {
     expect(fuzzyMatchAll('foo', [undefined])).toEqual(null);
     expect(fuzzyMatchAll('foo', ['bar'])).toEqual(null);
     expect(fuzzyMatchAll('wrong this ou', ['testing', 'this', 'out'])).toEqual(null);
-  });
-});
-describe('chunkArray()', () => {
-  it('works with exact divisor', () => {
-    const chunks = chunkArray([1, 2, 3, 4, 5, 6], 3);
-    expect(chunks).toEqual([
-      [1, 2, 3],
-      [4, 5, 6],
-    ]);
-  });
-
-  it('works with weird divisor', () => {
-    const chunks = chunkArray([1, 2, 3, 4, 5, 6], 4);
-    expect(chunks).toEqual([
-      [1, 2, 3, 4],
-      [5, 6],
-    ]);
-  });
-
-  it('works with empty', () => {
-    const chunks = chunkArray([], 4);
-    expect(chunks).toEqual([]);
-  });
-
-  it('works with less than one chunk', () => {
-    const chunks = chunkArray([1, 2], 4);
-    expect(chunks).toEqual([[1, 2]]);
   });
 });
 
