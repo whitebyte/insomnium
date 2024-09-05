@@ -84,7 +84,6 @@
     "nunjucks": "^3.2.4",
     "oauth-1.0a": "^2.2.6",
     "papaparse": "^5.4.1",
-    "prettier": "2.4.1",
     "shell-quote": "^1.8.1",
     "swagger-ui-dist": "5.0.0-alpha.6",
     "tailwind-merge": "^1.14.0",
@@ -95,7 +94,6 @@
     "yaml": "^1.6.0",
     "yaml-source-map": "^2.1.1"
   },
-  "prettier": {},
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.4.0",
     "@develohpanda/fluent-builder": "^2.1.2",

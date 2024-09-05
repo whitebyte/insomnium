@@ -12,11 +12,5 @@ module.exports = {
     '#FFF': 'currentColor',
   },
   ext: 'tsx',
-  prettier: true,
-  prettierConfig: {
-    arrowParens: 'avoid',
-    singleQuote: true,
-    parser: 'typescript',
-  },
   typescript: true,
 };
