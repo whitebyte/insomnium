@@ -96,7 +96,6 @@ export const RequestUrlBar = forwardRef<RequestUrlBarHandle, Props>(({
       });
   };
   const send = (sendParams: SendActionParams) => {
-            debugger
     fetcher.submit(JSON.stringify(sendParams),
       {
         action: `/project/${projectId}/workspace/${workspaceId}/debug/request/${requestId}/send`,

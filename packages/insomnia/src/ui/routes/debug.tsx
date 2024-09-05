@@ -156,6 +156,7 @@ export const Debug: FC = () => {
     baseEnvironment,
     collection,
   } = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData;
+
   const requestData = useRouteLoaderData('request/:requestId') as
     | RequestLoaderData
     | GrpcRequestLoaderData

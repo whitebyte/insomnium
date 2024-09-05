@@ -62,11 +62,8 @@ export const loader: LoaderFunction = async (): Promise<RootLoaderData> => {
 const Root = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { settings } = useLoaderData() as RootLoaderData;
-
-    const workspaceData = useRouteLoaderData(
-        ':workspaceId'
-    ) as WorkspaceLoaderData | null;
+    const {settings} = useLoaderData() as RootLoaderData;
+    const workspaceData = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData | null;
     const [importUri, setImportUri] = useState('');
     const patchSettings = useSettingsPatcher();
 
