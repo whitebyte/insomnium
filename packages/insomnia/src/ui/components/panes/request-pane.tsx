@@ -16,9 +16,9 @@ import { ContentTypeDropdown } from '../dropdowns/content-type-dropdown';
 import { AuthWrapper } from '../editors/auth/auth-wrapper';
 import { BodyEditor } from '../editors/body/body-editor';
 import {
-  QueryEditor,
-  QueryEditorContainer,
-  QueryEditorPreview,
+    QueryEditor,
+    QueryEditorContainer,
+    QueryEditorPreview
 } from '../editors/query-editor';
 import { RequestHeadersEditor } from '../editors/request-headers-editor';
 import { RequestParametersEditor } from '../editors/request-parameters-editor';
@@ -32,295 +32,295 @@ import { PlaceholderRequestPane } from './placeholder-request-pane';
 import { RequestSegmentEditor } from '../editors/request-segment-editor';
 
 const HeaderContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  position: 'relative',
-  height: '100%',
-  overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    height: '100%',
+    overflowY: 'auto'
 });
 
 export const TabPanelFooter = styled.div({
-  boxSizing: 'content-box',
-  display: 'flex',
-  flexDirection: 'row',
-  borderTop: '1px solid var(--hl-md)',
-  height: 'var(--line-height-sm)',
-  fontSize: 'var(--font-size-sm)',
-  '& > button': {
-    color: 'var(--hl)',
-    padding: 'var(--padding-xs) var(--padding-xs)',
-    height: '100%',
-  },
+    boxSizing: 'content-box',
+    display: 'flex',
+    flexDirection: 'row',
+    borderTop: '1px solid var(--hl-md)',
+    height: 'var(--line-height-sm)',
+    fontSize: 'var(--font-size-sm)',
+    '& > button': {
+        color: 'var(--hl)',
+        padding: 'var(--padding-xs) var(--padding-xs)',
+        height: '100%'
+    }
 });
 
 const TabPanelBody = styled.div({
-  overflowY: 'auto',
-  flex: '1 0',
+    overflowY: 'auto',
+    flex: '1 0'
 });
 
 interface Props {
-  environmentId: string;
-  settings: Settings;
-  setLoading: (l: boolean) => void;
-  onPaste: (text: string) => void;
+    environmentId: string;
+    settings: Settings;
+    setLoading: (l: boolean) => void;
+    onPaste: (text: string) => void;
 }
 
 export const RequestPane: FC<Props> = ({
-  environmentId,
-  settings,
-  setLoading,
-  onPaste,
+    environmentId,
+    settings,
+    setLoading,
+    onPaste
 }) => {
-  const { activeRequest, activeRequestMeta } = useRouteLoaderData('request/:requestId') as RequestLoaderData;
-  const { workspaceId, requestId } = useParams() as { projectId: string; workspaceId: string; requestId: string };
-  const patchSettings = useSettingsPatcher();
-  const [isRequestSettingsModalOpen, setIsRequestSettingsModalOpen] =
+    const { activeRequest, activeRequestMeta } = useRouteLoaderData('request/:requestId') as RequestLoaderData;
+    const { workspaceId, requestId } = useParams() as { projectId: string; workspaceId: string; requestId: string };
+    const patchSettings = useSettingsPatcher();
+    const [isRequestSettingsModalOpen, setIsRequestSettingsModalOpen] =
     useState(false);
-  const patchRequest = useRequestSetter();
+    const patchRequest = useRequestSetter();
 
-  useState(false);
+    useState(false);
 
-  const handleImportQueryFromUrl = () => {
-    let query;
+    const handleImportQueryFromUrl = () => {
+        let query;
 
-    try {
-      query = extractQueryStringFromUrl(activeRequest.url);
-    } catch (error) {
-      console.warn('Failed to parse url to import querystring');
-      return;
+        try {
+            query = extractQueryStringFromUrl(activeRequest.url);
+        } catch (error) {
+            console.warn('Failed to parse url to import querystring');
+            return;
+        }
+
+        // Remove the search string (?foo=bar&...) from the Url
+        const url = activeRequest.url.replace(`?${query}`, '');
+        const parameters = [
+            ...activeRequest.parameters,
+            ...deconstructQueryStringToParams(query)
+        ];
+
+        // Only update if url changed
+        if (url !== activeRequest.url) {
+            patchRequest(requestId, { url, parameters });
+        }
+    };
+
+    const { activeEnvironment } = useRouteLoaderData(
+        ':workspaceId'
+    ) as WorkspaceLoaderData;
+    // Force re-render when we switch requests or the environment gets modified
+    const uniqueKeyReq = `${activeEnvironment?.modified}::${requestId}`;
+
+    const uniqueKey = `${uniqueKeyReq}::${activeRequestMeta?.activeResponseId}`;
+
+    if (!activeRequest) {
+        return <PlaceholderRequestPane />;
     }
 
-    // Remove the search string (?foo=bar&...) from the Url
-    const url = activeRequest.url.replace(`?${query}`, '');
-    const parameters = [
-      ...activeRequest.parameters,
-      ...deconstructQueryStringToParams(query),
-    ];
-
-    // Only update if url changed
-    if (url !== activeRequest.url) {
-      patchRequest(requestId, { url, parameters });
-    }
-  };
-
-  const { activeEnvironment } = useRouteLoaderData(
-    ':workspaceId',
-  ) as WorkspaceLoaderData;
-  // Force re-render when we switch requests or the environment gets modified
-  const uniqueKeyReq = `${activeEnvironment?.modified}::${requestId}`;
-
-  const uniqueKey = `${uniqueKeyReq}::${activeRequestMeta?.activeResponseId}`;
-
-  if (!activeRequest) {
-    return <PlaceholderRequestPane />;
-  }
-
-  const numParameters = activeRequest.parameters.filter(
-    p => !p.disabled,
-  ).length;
-  const numHeaders = activeRequest.headers.filter(h => !h.disabled).length;
-  const urlHasQueryParameters = activeRequest.url.indexOf('?') >= 0;
-  const contentType =
+    const numParameters = activeRequest.parameters.filter(
+        p => !p.disabled
+    ).length;
+    const numHeaders = activeRequest.headers.filter(h => !h.disabled).length;
+    const urlHasQueryParameters = activeRequest.url.indexOf('?') >= 0;
+    const contentType =
     getContentTypeFromHeaders(activeRequest.headers) ||
     activeRequest.body.mimeType;
-  return (
-    <Pane type="request">
-      <PaneHeader >
-        <ErrorBoundary errorClassName="font-error pad text-center">
-          <RequestUrlBar
-            key={requestId}
-            uniquenessKey={uniqueKeyReq}
-            handleAutocompleteUrls={() => queryAllWorkspaceUrls(workspaceId, models.request.type, requestId)}
-            nunjucksPowerUserMode={settings.nunjucksPowerUserMode}
-            setLoading={setLoading}
-            onPaste={onPaste}
-          />
-        </ErrorBoundary>
-      </PaneHeader>
-      <Tabs aria-label="Request pane tabs">
-        <TabItem key="content-type" title={<ContentTypeDropdown />}>
-          <BodyEditor
-            key={uniqueKey}
-            request={activeRequest}
-            environmentId={environmentId}
-          />
-        </TabItem>
-        <TabItem key="auth" title={<AuthDropdown />}>
-          <ErrorBoundary
-            key={uniqueKey}
-            errorClassName="font-error pad text-center"
-          >
-            <AuthWrapper />
-          </ErrorBoundary>
-        </TabItem>
-        <TabItem
-          key="query"
-          title={
-            <>
-              Query{' '}
-              {numParameters > 0 && (
-                <span className="bubble space-left">{numParameters}</span>
-              )}
-            </>
-          }
-        >
-          <QueryEditorContainer>
-            <QueryEditorPreview className="pad pad-bottom-sm">
-              <label className="label--small no-pad-top">Url Preview</label>
-              <code className="txt-sm block faint">
-                <ErrorBoundary
-                  key={uniqueKey}
-                  errorClassName="tall wide vertically-align font-error pad text-center"
-                >
-                  <RenderedQueryString request={activeRequest} />
+    return (
+        <Pane type="request">
+            <PaneHeader >
+                <ErrorBoundary errorClassName="font-error pad text-center">
+                    <RequestUrlBar
+                        key={requestId}
+                        uniquenessKey={uniqueKeyReq}
+                        handleAutocompleteUrls={() => queryAllWorkspaceUrls(workspaceId, models.request.type, requestId)}
+                        nunjucksPowerUserMode={settings.nunjucksPowerUserMode}
+                        setLoading={setLoading}
+                        onPaste={onPaste}
+                    />
                 </ErrorBoundary>
-              </code>
-            </QueryEditorPreview>
-            <QueryEditor>
-              <ErrorBoundary
-                key={uniqueKey}
-                errorClassName="tall wide vertically-align font-error pad text-center"
-              >
-                <RequestParametersEditor
-                  key={contentType}
-                  bulk={settings.useBulkParametersEditor}
-                />
-
-                <br />
-                <RequestSegmentEditor
-                  key={contentType + "segment"}
-                  bulk={settings.useBulkParametersEditor}
-                />
-              </ErrorBoundary>
-            </QueryEditor>
-            <TabPanelFooter>
-              <button
-                className="btn btn--compact"
-                title={
-                  urlHasQueryParameters
-                    ? 'Import querystring'
-                    : 'No query params to import'
-                }
-                onClick={handleImportQueryFromUrl}
-              >
-                Import from URL
-              </button>
-              <button
-                className="btn btn--compact"
-                onClick={() =>
-                  patchSettings({
-                    useBulkParametersEditor: !settings.useBulkParametersEditor,
-                  })
-                }
-              >
-                {settings.useBulkParametersEditor
-                  ? 'Regular Edit'
-                  : 'Bulk Edit'}
-              </button>
-            </TabPanelFooter>
-          </QueryEditorContainer>
-        </TabItem>
-        <TabItem
-          key="headers"
-          title={
-            <>
-              Headers{' '}
-              {numHeaders > 0 && (
-                <span className="bubble space-left">{numHeaders}</span>
-              )}
-            </>
-          }
-        >
-          <HeaderContainer>
-            <ErrorBoundary
-              key={uniqueKey}
-              errorClassName="font-error pad text-center"
-            >
-              <TabPanelBody>
-                <RequestHeadersEditor bulk={settings.useBulkHeaderEditor} />
-              </TabPanelBody>
-            </ErrorBoundary>
-
-            <TabPanelFooter>
-              <button
-                className="btn btn--compact"
-                onClick={() =>
-                  patchSettings({
-                    useBulkHeaderEditor: !settings.useBulkHeaderEditor,
-                  })
-                }
-              >
-                {settings.useBulkHeaderEditor ? 'Regular Edit' : 'Bulk Edit'}
-              </button>
-            </TabPanelFooter>
-          </HeaderContainer>
-        </TabItem>
-        <TabItem
-          key="docs"
-          title={
-            <>
-              Docs
-              {activeRequest.description && (
-                <span className="bubble space-left">
-                  <i className="fa fa--skinny fa-check txt-xxs" />
-                </span>
-              )}
-            </>
-          }
-        >
-          <PanelContainer className="tall">
-            {activeRequest.description ? (
-              <div>
-                <div className="pull-right pad bg-default">
-                  <button
-                    className="btn btn--clicky"
-                    onClick={() => setIsRequestSettingsModalOpen(true)}
-                  >
-                    Edit
-                  </button>
-                </div>
-                <div className="pad">
-                  <ErrorBoundary errorClassName="font-error pad text-center">
-                    <MarkdownPreview
-                      heading={activeRequest.name}
-                      markdown={activeRequest.description}
+            </PaneHeader>
+            <Tabs aria-label="Request pane tabs">
+                <TabItem key="content-type" title={<ContentTypeDropdown />}>
+                    <BodyEditor
+                        key={uniqueKey}
+                        request={activeRequest}
+                        environmentId={environmentId}
                     />
-                  </ErrorBoundary>
-                </div>
-              </div>
-            ) : (
-              <div className="overflow-hidden editor vertically-center text-center">
-                <p className="pad text-sm text-center">
-                  <span className="super-faint">
-                    <i
-                      className="fa fa-file-text-o"
-                      style={{
-                        fontSize: '8rem',
-                        opacity: 0.3,
-                      }}
-                    />
-                  </span>
-                  <br />
-                  <br />
-                  <button
-                    className="btn btn--clicky faint"
-                    onClick={() => setIsRequestSettingsModalOpen(true)}
-                  >
-                    Add Description
-                  </button>
-                </p>
-              </div>
-            )}
-          </PanelContainer>
-        </TabItem>
-      </Tabs>
+                </TabItem>
+                <TabItem key="auth" title={<AuthDropdown />}>
+                    <ErrorBoundary
+                        key={uniqueKey}
+                        errorClassName="font-error pad text-center"
+                    >
+                        <AuthWrapper />
+                    </ErrorBoundary>
+                </TabItem>
+                <TabItem
+                    key="query"
+                    title={
+                        <>
+                            Query{' '}
+                            {numParameters > 0 &&
+                                <span className="bubble space-left">{numParameters}</span>
+                            }
+                        </>
+                    }
+                >
+                    <QueryEditorContainer>
+                        <QueryEditorPreview className="pad pad-bottom-sm">
+                            <label className="label--small no-pad-top">Url Preview</label>
+                            <code className="txt-sm block faint">
+                                <ErrorBoundary
+                                    key={uniqueKey}
+                                    errorClassName="tall wide vertically-align font-error pad text-center"
+                                >
+                                    <RenderedQueryString request={activeRequest} />
+                                </ErrorBoundary>
+                            </code>
+                        </QueryEditorPreview>
+                        <QueryEditor>
+                            <ErrorBoundary
+                                key={uniqueKey}
+                                errorClassName="tall wide vertically-align font-error pad text-center"
+                            >
+                                <RequestParametersEditor
+                                    key={contentType}
+                                    bulk={settings.useBulkParametersEditor}
+                                />
 
-      {isRequestSettingsModalOpen && (
-        <RequestSettingsModal
-          request={activeRequest}
-          onHide={() => setIsRequestSettingsModalOpen(false)}
-        />
-      )}
-    </Pane>
-  );
+                                <br />
+                                <RequestSegmentEditor
+                                    key={contentType + 'segment'}
+                                    bulk={settings.useBulkParametersEditor}
+                                />
+                            </ErrorBoundary>
+                        </QueryEditor>
+                        <TabPanelFooter>
+                            <button
+                                className="btn btn--compact"
+                                title={
+                                    urlHasQueryParameters
+                                        ? 'Import querystring'
+                                        : 'No query params to import'
+                                }
+                                onClick={handleImportQueryFromUrl}
+                            >
+                                Import from URL
+                            </button>
+                            <button
+                                className="btn btn--compact"
+                                onClick={() =>
+                                    patchSettings({
+                                        useBulkParametersEditor: !settings.useBulkParametersEditor
+                                    })
+                                }
+                            >
+                                {settings.useBulkParametersEditor
+                                    ? 'Regular Edit'
+                                    : 'Bulk Edit'}
+                            </button>
+                        </TabPanelFooter>
+                    </QueryEditorContainer>
+                </TabItem>
+                <TabItem
+                    key="headers"
+                    title={
+                        <>
+                            Headers{' '}
+                            {numHeaders > 0 &&
+                                <span className="bubble space-left">{numHeaders}</span>
+                            }
+                        </>
+                    }
+                >
+                    <HeaderContainer>
+                        <ErrorBoundary
+                            key={uniqueKey}
+                            errorClassName="font-error pad text-center"
+                        >
+                            <TabPanelBody>
+                                <RequestHeadersEditor bulk={settings.useBulkHeaderEditor} />
+                            </TabPanelBody>
+                        </ErrorBoundary>
+
+                        <TabPanelFooter>
+                            <button
+                                className="btn btn--compact"
+                                onClick={() =>
+                                    patchSettings({
+                                        useBulkHeaderEditor: !settings.useBulkHeaderEditor
+                                    })
+                                }
+                            >
+                                {settings.useBulkHeaderEditor ? 'Regular Edit' : 'Bulk Edit'}
+                            </button>
+                        </TabPanelFooter>
+                    </HeaderContainer>
+                </TabItem>
+                <TabItem
+                    key="docs"
+                    title={
+                        <>
+                            Docs
+                            {activeRequest.description &&
+                                <span className="bubble space-left">
+                                    <i className="fa fa--skinny fa-check txt-xxs" />
+                                </span>
+                            }
+                        </>
+                    }
+                >
+                    <PanelContainer className="tall">
+                        {activeRequest.description ?
+                            <div>
+                                <div className="pull-right pad bg-default">
+                                    <button
+                                        className="btn btn--clicky"
+                                        onClick={() => setIsRequestSettingsModalOpen(true)}
+                                    >
+                                        Edit
+                                    </button>
+                                </div>
+                                <div className="pad">
+                                    <ErrorBoundary errorClassName="font-error pad text-center">
+                                        <MarkdownPreview
+                                            heading={activeRequest.name}
+                                            markdown={activeRequest.description}
+                                        />
+                                    </ErrorBoundary>
+                                </div>
+                            </div>
+                            :
+                            <div className="overflow-hidden editor vertically-center text-center">
+                                <p className="pad text-sm text-center">
+                                    <span className="super-faint">
+                                        <i
+                                            className="fa fa-file-text-o"
+                                            style={{
+                                                fontSize: '8rem',
+                                                opacity: 0.3
+                                            }}
+                                        />
+                                    </span>
+                                    <br />
+                                    <br />
+                                    <button
+                                        className="btn btn--clicky faint"
+                                        onClick={() => setIsRequestSettingsModalOpen(true)}
+                                    >
+                                        Add Description
+                                    </button>
+                                </p>
+                            </div>
+                        }
+                    </PanelContainer>
+                </TabItem>
+            </Tabs>
+
+            {isRequestSettingsModalOpen &&
+                <RequestSettingsModal
+                    request={activeRequest}
+                    onHide={() => setIsRequestSettingsModalOpen(false)}
+                />
+            }
+        </Pane>
+    );
 };

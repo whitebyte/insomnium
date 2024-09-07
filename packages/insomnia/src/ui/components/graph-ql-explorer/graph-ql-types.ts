@@ -9,7 +9,7 @@ export type GraphQLFieldWithOptionalArgs =
   & Partial<Pick<GraphQLFieldAny, 'args'>>;
 
 export interface GraphQLFieldWithParentName extends GraphQLFieldWithOptionalArgs {
-  parentName?: string;
+    parentName?: string;
 }
 
 export type ActiveReference = SchemaReference;

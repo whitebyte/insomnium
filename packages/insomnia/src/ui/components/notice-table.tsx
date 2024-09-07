@@ -5,17 +5,17 @@ import { IconEnum, SvgIcon } from './svg-icon';
 import { Button } from './themed-button';
 
 export interface Notice {
-  type: 'warning' | 'error' | 'info';
-  line: number;
-  message: string;
+    type: 'warning' | 'error' | 'info';
+    line: number;
+    message: string;
 }
 
 export interface TableProps {
-  children: ReactNode;
-  striped?: boolean;
-  outlined?: boolean;
-  compact?: boolean;
-  headings?: ReactNode[];
+    children: ReactNode;
+    striped?: boolean;
+    outlined?: boolean;
+    compact?: boolean;
+    headings?: ReactNode[];
 }
 
 export const Table = styled.table<TableProps>`
@@ -25,19 +25,19 @@ export const Table = styled.table<TableProps>`
 
   td,
   th {
-    padding: ${({ compact }) => (compact ? 'var(--padding-xs)' : 'var(--padding-sm)')}
-      ${({ compact }) => (compact ? 'var(--padding-sm)' : 'var(--padding-md)')};
+    padding: ${({ compact }) => compact ? 'var(--padding-xs)' : 'var(--padding-sm)'}
+      ${({ compact }) => compact ? 'var(--padding-sm)' : 'var(--padding-md)'};
   }
 
   ${({ striped }) =>
-    striped &&
+        striped &&
     `
   tbody tr:nth-child(odd) {
     background: var(--hl-xs);
   }`}
 
   ${({ outlined }) =>
-    outlined &&
+        outlined &&
     `
   & {
     th {
@@ -79,8 +79,8 @@ export const TableRow = styled.tr``;
 /* <td> */
 /********/
 export interface TableDataProps {
-  compact?: boolean;
-  align?: 'center' | 'left';
+    compact?: boolean;
+    align?: 'center' | 'left';
 }
 
 export const TableData = styled.td<TableDataProps>`
@@ -90,8 +90,8 @@ export const TableData = styled.td<TableDataProps>`
 `;
 
 export interface TableHeaderProps {
-  compact?: boolean;
-  align?: 'center' | 'left';
+    compact?: boolean;
+    align?: 'center' | 'left';
 }
 
 export const TableHeader = styled.th<TableHeaderProps>`
@@ -105,12 +105,12 @@ export const TableHead = styled.thead``;
 export const TableBody = styled.tbody``;
 
 export interface NoticeTableProps<T extends Notice> {
-  notices: T[];
-  onClick: (notice: T) => void;
-  onVisibilityToggle?: (expanded: boolean) => any;
-  toggleRightPane: () => void;
-  compact?: boolean;
-  className?: string;
+    notices: T[];
+    onClick: (notice: T) => void;
+    onVisibilityToggle?: (expanded: boolean) => any;
+    toggleRightPane: () => void;
+    compact?: boolean;
+    className?: string;
 }
 
 const Wrapper = styled.div`
@@ -186,112 +186,112 @@ const Header = styled.header`
 `;
 
 const NoticeRow = <T extends Notice>({
-  notice,
-  onClick: propsOnClick,
+    notice,
+    onClick: propsOnClick
 }: PropsWithChildren<{
-  notice: T;
-  onClick: (notice: T) => void;
+    notice: T;
+    onClick: (notice: T) => void;
 }>) => {
-  const onClick = useCallback(() => {
-    propsOnClick?.(notice);
-  }, [notice, propsOnClick]);
+    const onClick = useCallback(() => {
+        propsOnClick?.(notice);
+    }, [notice, propsOnClick]);
 
-  return (
-    <TableRow key={`${notice.line}:${notice.type}:${notice.message}`}>
-      <TableData align="center">
-        <SvgIcon icon={notice.type} />
-      </TableData>
-      <TableData align="center">
-        {notice.line}
-        <JumpButton onClick={onClick}>
-          <SvgIcon icon={IconEnum.arrowRight} />
-        </JumpButton>
-      </TableData>
-      <TableData align="left">{notice.message}</TableData>
-    </TableRow>
-  );
+    return (
+        <TableRow key={`${notice.line}:${notice.type}:${notice.message}`}>
+            <TableData align="center">
+                <SvgIcon icon={notice.type} />
+            </TableData>
+            <TableData align="center">
+                {notice.line}
+                <JumpButton onClick={onClick}>
+                    <SvgIcon icon={IconEnum.arrowRight} />
+                </JumpButton>
+            </TableData>
+            <TableData align="left">{notice.message}</TableData>
+        </TableRow>
+    );
 };
 
 export const NoticeTable = <T extends Notice>({
-  notices,
-  compact,
-  onClick,
-  onVisibilityToggle,
-  toggleRightPane,
+    notices,
+    compact,
+    onClick,
+    onVisibilityToggle,
+    toggleRightPane
 }: PropsWithChildren<NoticeTableProps<T>>) => {
-  const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
 
-  const onCollapse = useCallback(() => {
-    setCollapsed(!collapsed);
-    if (onVisibilityToggle) {
-      onVisibilityToggle(!collapsed);
-    }
-  }, [onVisibilityToggle, collapsed]);
+    const onCollapse = useCallback(() => {
+        setCollapsed(!collapsed);
+        if (onVisibilityToggle) {
+            onVisibilityToggle(!collapsed);
+        }
+    }, [onVisibilityToggle, collapsed]);
 
-  const errors = notices.filter(notice => notice.type === 'error');
-  const warnings = notices.filter(notice => notice.type === 'warning');
-  return (
-    <Wrapper>
-      <Header>
-        <div>
-          {errors.length > 0 && (
-            <ErrorCount>
-              <SvgIcon icon={IconEnum.error} label={errors.length} />
-            </ErrorCount>
-          )}
-          {warnings.length > 0 && (
-            <ErrorCount>
-              <SvgIcon icon={IconEnum.warning} label={warnings.length} />
-            </ErrorCount>
-          )}
-        </div>
-        <Button className='btn btn--compact' onClick={onCollapse}>
-          Toggle Warnings
-          <SvgIcon
-            style={{ marginLeft: 'var(--padding-xs)' }}
-            icon={collapsed ? IconEnum.chevronUp : IconEnum.chevronDown}
-          />
-        </Button>
-        <Button className='btn btn--compact' onClick={toggleRightPane}>
-          Toggle Preview
-        </Button>
-      </Header>
-      {!collapsed && (
-        <ScrollWrapperStyled>
-          <Table striped compact={compact}>
-            <TableHead>
-              <TableRow>
-                <TableHeader align="center">Type</TableHeader>
-                <TableHeader
-                  style={{
-                    minWidth: '3em',
-                  }}
-                  align="center"
-                >
-                  Line
-                </TableHeader>
-                <TableHeader
-                  style={{
-                    width: '100%',
-                  }}
-                  align="left"
-                >
-                  Message
-                </TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {notices.map(notice => (
-                <NoticeRow
-                  key={`${notice.line}${notice.message}`}
-                  notice={notice}
-                  onClick={onClick}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </ScrollWrapperStyled>
-      )}
-    </Wrapper>
-  );
+    const errors = notices.filter(notice => notice.type === 'error');
+    const warnings = notices.filter(notice => notice.type === 'warning');
+    return (
+        <Wrapper>
+            <Header>
+                <div>
+                    {errors.length > 0 &&
+                        <ErrorCount>
+                            <SvgIcon icon={IconEnum.error} label={errors.length} />
+                        </ErrorCount>
+                    }
+                    {warnings.length > 0 &&
+                        <ErrorCount>
+                            <SvgIcon icon={IconEnum.warning} label={warnings.length} />
+                        </ErrorCount>
+                    }
+                </div>
+                <Button className='btn btn--compact' onClick={onCollapse}>
+                    Toggle Warnings
+                    <SvgIcon
+                        style={{ marginLeft: 'var(--padding-xs)' }}
+                        icon={collapsed ? IconEnum.chevronUp : IconEnum.chevronDown}
+                    />
+                </Button>
+                <Button className='btn btn--compact' onClick={toggleRightPane}>
+                    Toggle Preview
+                </Button>
+            </Header>
+            {!collapsed &&
+                <ScrollWrapperStyled>
+                    <Table striped compact={compact}>
+                        <TableHead>
+                            <TableRow>
+                                <TableHeader align="center">Type</TableHeader>
+                                <TableHeader
+                                    style={{
+                                        minWidth: '3em'
+                                    }}
+                                    align="center"
+                                >
+                                    Line
+                                </TableHeader>
+                                <TableHeader
+                                    style={{
+                                        width: '100%'
+                                    }}
+                                    align="left"
+                                >
+                                    Message
+                                </TableHeader>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {notices.map(notice =>
+                                <NoticeRow
+                                    key={`${notice.line}${notice.message}`}
+                                    notice={notice}
+                                    onClick={onClick}
+                                />
+                            )}
+                        </TableBody>
+                    </Table>
+                </ScrollWrapperStyled>
+            }
+        </Wrapper>
+    );
 };

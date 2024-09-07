@@ -12,42 +12,40 @@ export const canDuplicate = false;
 export const canSync = false;
 
 interface BaseRequestGroupMeta {
-  collapsed: boolean;
+    collapsed: boolean;
 }
 
 export type RequestGroupMeta = BaseModel & BaseRequestGroupMeta;
 
-export const isRequestGroupMeta = (model: Pick<BaseModel, 'type'>): model is RequestGroupMeta => (
-  model.type === type
-);
-
+export const isRequestGroupMeta = (model: Pick<BaseModel, 'type'>): model is RequestGroupMeta =>
+    model.type === type;
 export function init() {
-  return {
-    parentId: null,
-    collapsed: false,
-  };
+    return {
+        parentId: null,
+        collapsed: false
+    };
 }
 
 export function migrate(doc: RequestGroupMeta) {
-  return doc;
+    return doc;
 }
 
 export function create(patch: Partial<RequestGroupMeta> = {}) {
-  if (!patch.parentId) {
-    throw new Error('New RequestGroupMeta missing `parentId`: ' + JSON.stringify(patch));
-  }
+    if (!patch.parentId) {
+        throw new Error('New RequestGroupMeta missing `parentId`: ' + JSON.stringify(patch));
+    }
 
-  return db.docCreate<RequestGroupMeta>(type, patch);
+    return db.docCreate<RequestGroupMeta>(type, patch);
 }
 
 export function update(requestGroupMeta: RequestGroupMeta, patch: Partial<RequestGroupMeta>) {
-  return db.docUpdate<RequestGroupMeta>(requestGroupMeta, patch);
+    return db.docUpdate<RequestGroupMeta>(requestGroupMeta, patch);
 }
 
 export function getByParentId(parentId: string) {
-  return db.getWhere<RequestGroupMeta>(type, { parentId });
+    return db.getWhere<RequestGroupMeta>(type, { parentId });
 }
 
 export function all() {
-  return db.all<RequestGroupMeta>(type);
+    return db.all<RequestGroupMeta>(type);
 }

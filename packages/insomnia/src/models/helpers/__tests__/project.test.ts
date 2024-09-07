@@ -9,19 +9,19 @@ const localA = { name: 'a', _id: 'localA' };
 const localB = { name: 'b', _id: 'localB' };
 
 describe('sortProjects', () => {
-  it('sorts projects by default > local > remote > name', () => {
-    const unSortedProjects = [
-      localB,
-      defaultProject,
-      localA,
-    ];
-    const result = sortProjects(unSortedProjects);
+    it('sorts projects by default > local > remote > name', () => {
+        const unSortedProjects = [
+            localB,
+            defaultProject,
+            localA
+        ];
+        const result = sortProjects(unSortedProjects);
 
-    const sortedProjects = [
-      defaultProject,
-      localA,
-      localB,
-    ];
-    expect(result).toEqual(sortedProjects);
-  });
+        const sortedProjects = [
+            defaultProject,
+            localA,
+            localB
+        ];
+        expect(result).toEqual(sortedProjects);
+    });
 });

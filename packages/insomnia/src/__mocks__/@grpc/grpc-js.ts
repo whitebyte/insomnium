@@ -11,23 +11,23 @@ const mockCallCancel = jest.fn();
 export const status = grpcJs.status;
 
 class MockCall extends EventEmitter {
-  write(...args) {
-    mockCallWrite(...args);
-  }
+    write(...args) {
+        mockCallWrite(...args);
+    }
 
-  end(...args) {
-    mockCallEnd(...args);
-  }
+    end(...args) {
+        mockCallEnd(...args);
+    }
 
-  cancel(...args) {
-    mockCallCancel(...args);
-  }
+    cancel(...args) {
+        mockCallCancel(...args);
+    }
 }
 
 let mockCall = new MockCall();
 
 const makeMockCall = () => {
-  mockCall = new MockCall();
+    mockCall = new MockCall();
 };
 
 const getMockCall = () => mockCall;
@@ -41,64 +41,63 @@ const mockCreateInsecure = jest.fn();
 const mockCreateSsl = jest.fn();
 
 export const grpcMocks = {
-  getMockCall,
-  mockConstructor,
-  mockMakeUnaryRequest,
-  mockMakeClientStreamRequest,
-  mockMakeServerStreamRequest,
-  mockMakeBidiStreamRequest,
-  mockCreateInsecure,
-  mockCreateSsl,
-  mockCallWrite,
-  mockCallEnd,
-  mockCallCancel,
+    getMockCall,
+    mockConstructor,
+    mockMakeUnaryRequest,
+    mockMakeClientStreamRequest,
+    mockMakeServerStreamRequest,
+    mockMakeBidiStreamRequest,
+    mockCreateInsecure,
+    mockCreateSsl,
+    mockCallWrite,
+    mockCallEnd,
+    mockCallCancel
 };
 
 class MockGrpcClient {
-  constructor(...args) {
-    mockConstructor(...args);
-  }
+    constructor(...args) {
+        mockConstructor(...args);
+    }
 
-  makeUnaryRequest(...args) {
-    mockMakeUnaryRequest(...args);
-    makeMockCall();
-    return getMockCall();
-  }
+    makeUnaryRequest(...args) {
+        mockMakeUnaryRequest(...args);
+        makeMockCall();
+        return getMockCall();
+    }
 
-  makeClientStreamRequest(...args) {
-    mockMakeClientStreamRequest(...args);
-    makeMockCall();
-    return getMockCall();
-  }
+    makeClientStreamRequest(...args) {
+        mockMakeClientStreamRequest(...args);
+        makeMockCall();
+        return getMockCall();
+    }
 
-  makeServerStreamRequest(...args) {
-    mockMakeServerStreamRequest(...args);
-    makeMockCall();
-    return getMockCall();
-  }
+    makeServerStreamRequest(...args) {
+        mockMakeServerStreamRequest(...args);
+        makeMockCall();
+        return getMockCall();
+    }
 
-  makeBidiStreamRequest(...args) {
-    mockMakeBidiStreamRequest(...args);
-    makeMockCall();
-    return getMockCall();
-  }
-
+    makeBidiStreamRequest(...args) {
+        mockMakeBidiStreamRequest(...args);
+        makeMockCall();
+        return getMockCall();
+    }
 }
 
 export function makeGenericClientConstructor() {
-  return MockGrpcClient;
+    return MockGrpcClient;
 }
 
 export class Metadata {
-  /**
+    /**
    * Mock Metadata class to avoid TypeError: grpc.Metadata is not a constructor
    */
-  constructor() {
+    constructor() {
     // Do nothing
-  }
+    }
 }
 
 export const credentials = {
-  createInsecure: mockCreateInsecure,
-  createSsl: mockCreateSsl,
+    createInsecure: mockCreateInsecure,
+    createSsl: mockCreateSsl
 };

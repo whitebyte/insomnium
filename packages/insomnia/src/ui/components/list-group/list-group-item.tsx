@@ -2,9 +2,9 @@ import React, { FC } from 'react';
 import styled, { css } from 'styled-components';
 
 export interface ListGroupItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
-  isSelected?: boolean;
-  selectable?: boolean;
-  indentLevel?: number;
+    isSelected?: boolean;
+    selectable?: boolean;
+    indentLevel?: number;
 }
 
 const StyledListGroupItem = styled.li<ListGroupItemProps>`
@@ -12,7 +12,7 @@ const StyledListGroupItem = styled.li<ListGroupItemProps>`
   padding: var(--padding-sm) var(--padding-sm);
 
   ${({ selectable }) =>
-    selectable &&
+        selectable &&
     css`
       &:hover {
         background-color: var(--hl-sm) !important;
@@ -20,14 +20,14 @@ const StyledListGroupItem = styled.li<ListGroupItemProps>`
     `}
 
   ${({ isSelected }) =>
-    isSelected &&
+        isSelected &&
     css`
       background-color: var(--hl-xs) !important;
       font-weight: bold;
     `}
 
   ${({ indentLevel }) =>
-    indentLevel &&
+        indentLevel &&
     css`
       padding-left: calc(var(--padding-sm) + var(--padding-md) * ${indentLevel});
     `};

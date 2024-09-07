@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import { Request } from '../../../models/request';
 
 export interface UnitTestRequestSelectorProps {
-  onSetActiveRequest: React.ChangeEventHandler<HTMLSelectElement>;
-  selectedRequestId?: string | null;
-  selectableRequests: Request[];
+    onSetActiveRequest: React.ChangeEventHandler<HTMLSelectElement>;
+    selectedRequestId?: string | null;
+    selectableRequests: Request[];
 }
 
 const StyledUnitTestRequestSelector = styled.div`
@@ -33,27 +33,27 @@ const StyledUnitTestRequestSelector = styled.div`
 `;
 
 export const UnitTestRequestSelector: FunctionComponent<UnitTestRequestSelectorProps> = ({
-  onSetActiveRequest,
-  selectedRequestId,
-  selectableRequests,
+    onSetActiveRequest,
+    selectedRequestId,
+    selectableRequests
 }) => {
-  return (
-    <StyledUnitTestRequestSelector>
-      <select
-        name="request"
-        id="request"
-        onChange={onSetActiveRequest}
-        defaultValue={selectedRequestId || '__NULL__'}
-      >
-        <option value="__NULL__">
-          {selectableRequests.length ? '-- Select Request --' : '-- No Requests --'}
-        </option>
-        {selectableRequests.map(({ name, _id }) => (
-          <option key={_id} value={_id}>
-            {name}
-          </option>
-        ))}
-      </select>
-    </StyledUnitTestRequestSelector>
-  );
+    return (
+        <StyledUnitTestRequestSelector>
+            <select
+                name="request"
+                id="request"
+                onChange={onSetActiveRequest}
+                defaultValue={selectedRequestId || '__NULL__'}
+            >
+                <option value="__NULL__">
+                    {selectableRequests.length ? '-- Select Request --' : '-- No Requests --'}
+                </option>
+                {selectableRequests.map(({ name, _id }) =>
+                    <option key={_id} value={_id}>
+                        {name}
+                    </option>
+                )}
+            </select>
+        </StyledUnitTestRequestSelector>
+    );
 };

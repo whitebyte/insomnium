@@ -14,18 +14,18 @@ import * as wsdl from './wsdl';
 
 // note that the importers are tried one at a time until one works (for every given input).  That means that we would benefit from keeping the less computationally intense importers near the bottom of the list and the more computationally intense ones near the top.
 export const importers: Importer[] = [
-  insomnia1,
-  insomnia2,
-  insomnia3,
-  insomnia4,
-  postman,
-  postmanenv,
-  har,
-  hoppscotch2,
-  curl,
-  swagger2,
-  openapi3,
-  wsdl,
+    insomnia1,
+    insomnia2,
+    insomnia3,
+    insomnia4,
+    postman,
+    postmanenv,
+    har,
+    hoppscotch2,
+    curl,
+    swagger2,
+    openapi3,
+    wsdl
 ];
 
 export type { Insomnia1Data } from './insomnia-1';

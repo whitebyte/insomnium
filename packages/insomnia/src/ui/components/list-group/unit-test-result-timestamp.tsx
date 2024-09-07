@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { SvgIcon } from '../svg-icon';
 
 export interface UnitTestResultTimestampProps {
-  timeMs: String;
+    timeMs: string;
 }
 
 const StyledTimestamp = styled.div`
@@ -23,11 +23,11 @@ const StyledTimestamp = styled.div`
 `;
 
 export const UnitTestResultTimestamp: FunctionComponent<UnitTestResultTimestampProps> = ({ timeMs }) => {
-  return (
-    <StyledTimestamp>
-      {' '}
-      <SvgIcon icon="clock" />
-      <div>{timeMs} ms</div>
-    </StyledTimestamp>
-  );
+    return (
+        <StyledTimestamp>
+            {' '}
+            <SvgIcon icon="clock" />
+            <div>{timeMs} ms</div>
+        </StyledTimestamp>
+    );
 };

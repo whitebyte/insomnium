@@ -6,13 +6,13 @@ import { UnitTestResultBadge } from './unit-test-result-badge';
 import { UnitTestResultTimestamp } from './unit-test-result-timestamp';
 
 export interface UnitTestResultItemProps {
-  item: {
-    duration: string;
-    err?: {
-      message: string;
+    item: {
+        duration: string;
+        err?: {
+            message: string;
+        };
+        title: string;
     };
-    title: string;
-  };
 }
 
 const StyledResultListItem = styled(ListGroupItem)`
@@ -46,20 +46,20 @@ const StyledResultListItem = styled(ListGroupItem)`
 `;
 
 export const UnitTestResultItem: FunctionComponent<UnitTestResultItemProps> = ({
-  item: {
-    err = {},
-    title,
-    duration,
-  },
+    item: {
+        err = {},
+        title,
+        duration
+    }
 }) => {
-  return (
-    <StyledResultListItem>
-      <div>
-        <UnitTestResultBadge failed={Boolean(err.message)} />
-        <p>{title}</p>
-        <UnitTestResultTimestamp timeMs={duration} />
-      </div>
-      {err.message && <code>{err.message}</code>}
-    </StyledResultListItem>
-  );
+    return (
+        <StyledResultListItem>
+            <div>
+                <UnitTestResultBadge failed={Boolean(err.message)} />
+                <p>{title}</p>
+                <UnitTestResultTimestamp timeMs={duration} />
+            </div>
+            {err.message && <code>{err.message}</code>}
+        </StyledResultListItem>
+    );
 };

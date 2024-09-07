@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import { IconEnum, SvgIcon } from '../../svg-icon';
 
 export interface SidebarHeaderProps {
-  headerTitle: string;
-  toggleSection: React.MouseEventHandler<HTMLLIElement>;
-  toggleFilter?: () => void;
-  sectionVisible: boolean;
-  children?: ReactNode;
+    headerTitle: string;
+    toggleSection: React.MouseEventHandler<HTMLLIElement>;
+    toggleFilter?: () => void;
+    sectionVisible: boolean;
+    children?: ReactNode;
 }
 
 const StyledHeader = styled.li`
@@ -56,33 +56,33 @@ const StyledHeader = styled.li`
 `;
 
 export const SidebarHeader: FunctionComponent<SidebarHeaderProps> = ({
-  headerTitle,
-  toggleSection,
-  toggleFilter,
-  sectionVisible,
-  children,
+    headerTitle,
+    toggleSection,
+    toggleFilter,
+    sectionVisible,
+    children
 }) => {
-  const handleFilterClick: React.MouseEventHandler<HTMLSpanElement> | undefined =
+    const handleFilterClick: React.MouseEventHandler<HTMLSpanElement> | undefined =
     sectionVisible && toggleFilter // only handle a click if the section is open
-      ? event => {
-        event.stopPropagation(); // Prevent a parent from also handling the click
+        ? event => {
+            event.stopPropagation(); // Prevent a parent from also handling the click
 
-        toggleFilter();
-      }
-      : undefined;
-  return (
-    <StyledHeader onClick={toggleSection}>
-      <h6>{headerTitle}</h6>
-      <div>
-        {children || (
-          <span
-            onClick={handleFilterClick}
-            style={{ opacity: sectionVisible ? 0.6 : 0 }}
-          >
-            <SvgIcon icon={IconEnum.search} />
-          </span>
-        )}
-      </div>
-    </StyledHeader>
-  );
+            toggleFilter();
+        }
+        : undefined;
+    return (
+        <StyledHeader onClick={toggleSection}>
+            <h6>{headerTitle}</h6>
+            <div>
+                {children ||
+                    <span
+                        onClick={handleFilterClick}
+                        style={{ opacity: sectionVisible ? 0.6 : 0 }}
+                    >
+                        <SvgIcon icon={IconEnum.search} />
+                    </span>
+                }
+            </div>
+        </StyledHeader>
+    );
 };

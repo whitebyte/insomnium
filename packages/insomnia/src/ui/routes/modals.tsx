@@ -24,71 +24,71 @@ import { WrapperModal } from '../components/modals/wrapper-modal';
 import { WorkspaceLoaderData } from './workspace';
 
 const Modals: FC = () => {
-  const workspaceData = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData | undefined;
-  const { activeWorkspace, activeEnvironment } = workspaceData || {};
+    const workspaceData = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData | undefined;
+    const { activeWorkspace, activeEnvironment } = workspaceData || {};
 
-  return (
-    <div key="modals" className="modals">
-      <ErrorBoundary showAlert>
-        <AlertModal ref={instance => registerModal(instance, 'AlertModal')} />
-        <ErrorModal ref={instance => registerModal(instance, 'ErrorModal')} />
-        <PromptModal
-          ref={instance => registerModal(instance, 'PromptModal')}
-        />
-        <WrapperModal
-          ref={instance => registerModal(instance, 'WrapperModal')}
-        />
+    return (
+        <div key="modals" className="modals">
+            <ErrorBoundary showAlert>
+                <AlertModal ref={instance => registerModal(instance, 'AlertModal')} />
+                <ErrorModal ref={instance => registerModal(instance, 'ErrorModal')} />
+                <PromptModal
+                    ref={instance => registerModal(instance, 'PromptModal')}
+                />
+                <WrapperModal
+                    ref={instance => registerModal(instance, 'WrapperModal')}
+                />
 
-        <AskModal ref={instance => registerModal(instance, 'AskModal')} />
-        <SelectModal
-          ref={instance => registerModal(instance, 'SelectModal')}
-        />
-        <FilterHelpModal
-          ref={instance => registerModal(instance, 'FilterHelpModal')}
-        />
-        <RequestRenderErrorModal
-          ref={instance => registerModal(instance, 'RequestRenderErrorModal')}
-        />
-        <GenerateConfigModal
-          ref={instance => registerModal(instance, 'GenerateConfigModal')}
-        />
+                <AskModal ref={instance => registerModal(instance, 'AskModal')} />
+                <SelectModal
+                    ref={instance => registerModal(instance, 'SelectModal')}
+                />
+                <FilterHelpModal
+                    ref={instance => registerModal(instance, 'FilterHelpModal')}
+                />
+                <RequestRenderErrorModal
+                    ref={instance => registerModal(instance, 'RequestRenderErrorModal')}
+                />
+                <GenerateConfigModal
+                    ref={instance => registerModal(instance, 'GenerateConfigModal')}
+                />
 
-        <CodePromptModal
-          ref={instance => registerModal(instance, 'CodePromptModal')}
-        />
+                <CodePromptModal
+                    ref={instance => registerModal(instance, 'CodePromptModal')}
+                />
 
-        {activeWorkspace ? (
-          <>
-            <NunjucksModal
-              ref={instance => registerModal(instance, 'NunjucksModal')}
-              workspace={activeWorkspace}
-            />
-          </>
-        ) : null}
+                {activeWorkspace ?
+                    <>
+                        <NunjucksModal
+                            ref={instance => registerModal(instance, 'NunjucksModal')}
+                            workspace={activeWorkspace}
+                        />
+                    </>
+                    : null}
 
-        <GenerateCodeModal
-          ref={instance => registerModal(instance, 'GenerateCodeModal')}
-          environmentId={activeEnvironment ? activeEnvironment._id : 'n/a'}
-        />
+                <GenerateCodeModal
+                    ref={instance => registerModal(instance, 'GenerateCodeModal')}
+                    environmentId={activeEnvironment ? activeEnvironment._id : 'n/a'}
+                />
 
-        <SettingsModal
-          ref={instance => registerModal(instance, 'SettingsModal')}
-        />
-        <ResponseDebugModal
-          ref={instance => registerModal(instance, 'ResponseDebugModal')}
-        />
+                <SettingsModal
+                    ref={instance => registerModal(instance, 'SettingsModal')}
+                />
+                <ResponseDebugModal
+                    ref={instance => registerModal(instance, 'ResponseDebugModal')}
+                />
 
-        <EnvironmentEditModal
-          ref={instance => registerModal(instance, 'EnvironmentEditModal')}
-        />
+                <EnvironmentEditModal
+                    ref={instance => registerModal(instance, 'EnvironmentEditModal')}
+                />
 
-        <AddKeyCombinationModal
-          ref={instance => registerModal(instance, 'AddKeyCombinationModal')}
-        />
+                <AddKeyCombinationModal
+                    ref={instance => registerModal(instance, 'AddKeyCombinationModal')}
+                />
 
-      </ErrorBoundary>
-    </div>
-  );
+            </ErrorBoundary>
+        </div>
+    );
 };
 
 export default Modals;

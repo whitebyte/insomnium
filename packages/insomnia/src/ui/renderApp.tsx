@@ -21,7 +21,7 @@ export async function renderApp() {
     // initalize a new req manually on user's first run
     if (!prevLocationHistoryEntry) {
         const workspaceNumber = await database.count<Workspace>(models.workspace.type);
-        console.log("workspaces detected ~>", workspaceNumber);
+        console.log('workspaces detected ~>', workspaceNumber);
 
         if (workspaceNumber === 0) {
             const [d] = dummyStartingWorkspace();
@@ -29,9 +29,9 @@ export async function renderApp() {
                 resources: { resources: models.BaseModel[] }[];
             };
 
-            const r = (newObj.resources?.[0]?.resources as BaseModel[]).find(a => a.type === "Request");
-            const w = (newObj.resources?.[0]?.resources as BaseModel[]).find(a => a.type === "Workspace");
-            const e = (newObj.resources?.[0]?.resources as BaseModel[]).find(a => a.type === "Environment");
+            const r = (newObj.resources?.[0]?.resources as BaseModel[]).find(a => a.type === 'Request');
+            const w = (newObj.resources?.[0]?.resources as BaseModel[]).find(a => a.type === 'Workspace');
+            const e = (newObj.resources?.[0]?.resources as BaseModel[]).find(a => a.type === 'Environment');
             if (w && r && e) {
                 wId = w._id;
                 beginningPathForFirstTimeUser = `/project/proj_default-project/workspace/${w._id}/debug/request/${r._id}`;
@@ -39,30 +39,28 @@ export async function renderApp() {
                 const defaultProject = await models.project.getById('proj_default-project');
 
                 if (!defaultProject) {
-                    (await models.project.create({
+                    await models.project.create({
                         _id: 'proj_default-project',
-                        name: getProductName(),
-                    }));
+                        name: getProductName()
+                    });
                 }
 
                 eId = e._id;
-                console.log("META DESU->", w._id, beginningPathForFirstTimeUser);
+                console.log('META DESU->', w._id, beginningPathForFirstTimeUser);
                 const id = await models.workspaceMeta.getByParentId(w._id);
                 if (!id) {
                     const activeWorkspaceMeta = await models.workspaceMeta.getOrCreateByParentId(w._id, {
-                        activeEnvironmentId: eId,
+                        activeEnvironmentId: eId
                     });
                 }
             }
-
         }
-
     }
 
     const router = setupRouterStuff(beginningPathForFirstTimeUser);
 
     router.subscribe((state) => {
-      console.log(`Current path: ${state.location.pathname}`);
+        console.log(`Current path: ${state.location.pathname}`);
     });
 
     await database.initClient();
@@ -74,5 +72,4 @@ export async function renderApp() {
     ReactDOM.createRoot(root).render(
         <RouterProvider router={router} />
     );
-
 }

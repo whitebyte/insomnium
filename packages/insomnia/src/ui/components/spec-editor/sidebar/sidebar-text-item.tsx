@@ -2,8 +2,8 @@ import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
 
 export interface SidebarTextItemProps {
-  label: string;
-  headline: string;
+    label: string;
+    headline: string;
 }
 
 const StyledTextItem = styled.span`
@@ -14,9 +14,9 @@ const StyledTextItem = styled.span`
   white-space: nowrap;
 `;
 
-export const SidebarTextItem: FunctionComponent<SidebarTextItemProps> = ({ label, headline }) => (
-  <StyledTextItem>
-    <strong>{label}</strong>
-    <span>{headline}</span>
-  </StyledTextItem>
-);
+export const SidebarTextItem: FunctionComponent<SidebarTextItemProps> = ({ label, headline }) =>
+    <StyledTextItem>
+        <strong>{label}</strong>
+        <span>{headline}</span>
+    </StyledTextItem>;
+

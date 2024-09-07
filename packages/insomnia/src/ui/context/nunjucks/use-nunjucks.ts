@@ -9,7 +9,7 @@ import { WorkspaceLoaderData } from '../../routes/workspace';
 let getRenderContextPromiseCache: any = {};
 
 export const initializeNunjucksRenderPromiseCache = () => {
-  getRenderContextPromiseCache = {};
+    getRenderContextPromiseCache = {};
 };
 
 initializeNunjucksRenderPromiseCache();
@@ -18,25 +18,25 @@ initializeNunjucksRenderPromiseCache();
  * Access to functions useful for Nunjucks rendering
  */
 export const useNunjucks = () => {
-  const requestData = useRouteLoaderData('request/:requestId') as RequestLoaderData | undefined;
-  const workspaceData = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData;
+    const requestData = useRouteLoaderData('request/:requestId') as RequestLoaderData | undefined;
+    const workspaceData = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData;
 
-  const fetchRenderContext = useCallback(async () => {
-    const ancestors = await getRenderContextAncestors(requestData?.activeRequest || workspaceData?.activeWorkspace);
-    return getRenderContext({
-      request: requestData?.activeRequest || undefined,
-      environmentId: workspaceData?.activeEnvironment._id,
-      ancestors,
-    });
-  }, [requestData?.activeRequest, workspaceData?.activeWorkspace, workspaceData?.activeEnvironment._id]);
+    const fetchRenderContext = useCallback(async () => {
+        const ancestors = await getRenderContextAncestors(requestData?.activeRequest || workspaceData?.activeWorkspace);
+        return getRenderContext({
+            request: requestData?.activeRequest || undefined,
+            environmentId: workspaceData?.activeEnvironment._id,
+            ancestors
+        });
+    }, [requestData?.activeRequest, workspaceData?.activeWorkspace, workspaceData?.activeEnvironment._id]);
 
-  const handleGetRenderContext: HandleGetRenderContext = useCallback(async () => {
-    const context = await fetchRenderContext();
-    const keys = getKeys(context, NUNJUCKS_TEMPLATE_GLOBAL_PROPERTY_NAME);
-    return { context, keys };
-  }, [fetchRenderContext]);
+    const handleGetRenderContext: HandleGetRenderContext = useCallback(async () => {
+        const context = await fetchRenderContext();
+        const keys = getKeys(context, NUNJUCKS_TEMPLATE_GLOBAL_PROPERTY_NAME);
+        return { context, keys };
+    }, [fetchRenderContext]);
 
-  /**
+    /**
    * Heavily optimized render function
    *
    * @param text - template to render
@@ -44,23 +44,23 @@ export const useNunjucks = () => {
    * @returns {Promise}
    * @private
    */
-  const handleRender: HandleRender = useCallback(async <T>(obj: T, contextCacheKey: string | null = null) => {
-    if (!contextCacheKey || !getRenderContextPromiseCache[contextCacheKey]) {
-      // NOTE: We're caching promises here to avoid race conditions
-      // @ts-expect-error -- TSCONVERSION contextCacheKey being null used as object index
-      getRenderContextPromiseCache[contextCacheKey] = fetchRenderContext();
-    }
+    const handleRender: HandleRender = useCallback(async <T>(obj: T, contextCacheKey: string | null = null) => {
+        if (!contextCacheKey || !getRenderContextPromiseCache[contextCacheKey]) {
+            // NOTE: We're caching promises here to avoid race conditions
+            // @ts-expect-error -- TSCONVERSION contextCacheKey being null used as object index
+            getRenderContextPromiseCache[contextCacheKey] = fetchRenderContext();
+        }
 
-    // Set timeout to delete the key eventually
-    // @ts-expect-error -- TSCONVERSION contextCacheKey being null used as object index
-    setTimeout(() => delete getRenderContextPromiseCache[contextCacheKey], 5000);
-    // @ts-expect-error -- TSCONVERSION contextCacheKey being null used as object index
-    const context = await getRenderContextPromiseCache[contextCacheKey];
-    return render(obj, context);
-  }, [fetchRenderContext]);
+        // Set timeout to delete the key eventually
+        // @ts-expect-error -- TSCONVERSION contextCacheKey being null used as object index
+        setTimeout(() => delete getRenderContextPromiseCache[contextCacheKey], 5000);
+        // @ts-expect-error -- TSCONVERSION contextCacheKey being null used as object index
+        const context = await getRenderContextPromiseCache[contextCacheKey];
+        return render(obj, context);
+    }, [fetchRenderContext]);
 
-  return {
-    handleRender,
-    handleGetRenderContext,
-  };
+    return {
+        handleRender,
+        handleGetRenderContext
+    };
 };

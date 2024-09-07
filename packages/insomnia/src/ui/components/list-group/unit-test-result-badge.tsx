@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import styled from 'styled-components';
 
 export interface UnitTestResultBadgeProps {
-  failed?: boolean;
+    failed?: boolean;
 }
 
 const StyledBadge = styled.span`
@@ -32,8 +32,8 @@ const StyledPassedBadge = styled(StyledBadge)`
   }
 `;
 
-export const UnitTestResultBadge: FunctionComponent<UnitTestResultBadgeProps> = ({ failed }) => failed ? (
-  <StyledFailedBadge>Failed</StyledFailedBadge>
-) : (
-  <StyledPassedBadge>Passed</StyledPassedBadge>
-);
+export const UnitTestResultBadge: FunctionComponent<UnitTestResultBadgeProps> = ({ failed }) => failed ?
+    <StyledFailedBadge>Failed</StyledFailedBadge>
+    :
+    <StyledPassedBadge>Passed</StyledPassedBadge>;
+

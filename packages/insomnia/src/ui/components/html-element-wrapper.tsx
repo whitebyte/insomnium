@@ -1,8 +1,8 @@
 import React, { FC, useEffect, useRef } from 'react';
 
 interface Props {
-  el: HTMLElement;
-  onUnmount?: () => void;
+    el: HTMLElement;
+    onUnmount?: () => void;
 }
 
 /**
@@ -10,15 +10,15 @@ interface Props {
  * This was created to facilitate the layer between UI plugins and the Insomnium application.
  */
 export const HtmlElementWrapper: FC<Props> = ({ el, onUnmount }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.innerHTML = '';
-      ref.current.appendChild(el);
-    }
-    return () => {
-      onUnmount && onUnmount();
-    };
-  });
-  return <div ref={ref} />;
+    const ref = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        if (ref.current) {
+            ref.current.innerHTML = '';
+            ref.current.appendChild(el);
+        }
+        return () => {
+            onUnmount && onUnmount();
+        };
+    });
+    return <div ref={ref} />;
 };

@@ -9,21 +9,21 @@ import { useNunjucks } from './use-nunjucks';
  * For ungated access, use `useNunjucksRenderFunctions` instead
  */
 export const useGatedNunjucks = (props: { disabled?: boolean } = {}): Partial<ReturnType<typeof useNunjucks>> => {
-  const funcs = useNunjucks();
+    const funcs = useNunjucks();
 
-  const enabledByProvider = useNunjucksEnabled().enabled;
-  const enabledByProp = !props.disabled;
+    const enabledByProvider = useNunjucksEnabled().enabled;
+    const enabledByProp = !props.disabled;
 
-  // provider: disabled, prop: disabled -> disable
-  // provider: disabled, prop: enabled  -> disable
-  // provider: enabled,  prop: disabled -> disable
-  // provider: enabled,  prop: enabled  -> enable
+    // provider: disabled, prop: disabled -> disable
+    // provider: disabled, prop: enabled  -> disable
+    // provider: enabled,  prop: disabled -> disable
+    // provider: enabled,  prop: enabled  -> enable
 
-  const isNunjucksTemplatingEnabled = enabledByProp && enabledByProvider;
+    const isNunjucksTemplatingEnabled = enabledByProp && enabledByProvider;
 
-  if (isNunjucksTemplatingEnabled) {
-    return funcs;
-  }
+    if (isNunjucksTemplatingEnabled) {
+        return funcs;
+    }
 
-  return {};
+    return {};
 };

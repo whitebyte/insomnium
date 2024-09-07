@@ -18,120 +18,119 @@ import { WebSocketBridgeAPI } from '../network/websocket';
 import { gRPCBridgeAPI } from './grpc';
 
 export interface MainBridgeAPI {
-  loginStateChange: () => void;
-  openInBrowser: (url: string) => void;
-  restart: () => void;
-  halfSecondAfterAppStart: () => void;
-  manualUpdateCheck: () => void;
-  backup: () => Promise<void>;
-  restoreBackup: (version: string) => Promise<void>;
-  spectralRun: (options: { contents: string; rulesetPath: string }) => Promise<ISpectralDiagnostic[]>;
-  authorizeUserInWindow: typeof authorizeUserInWindow;
-  setMenuBarVisibility: (visible: boolean) => void;
-  installPlugin: typeof installPlugin;
-  writeFile: (options: { path: string; content: string }) => Promise<string>;
-  cancelCurlRequest: typeof cancelCurlRequest;
-  curlRequest: typeof curlRequest;
-  on: (channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) => () => void;
-  webSocket: WebSocketBridgeAPI;
-  grpc: gRPCBridgeAPI;
-  curl: CurlBridgeAPI;
-  trackSegmentEvent: (options: { event: string; properties?: Record<string, unknown> }) => void;
-  trackPageView: (options: { name: string }) => void;
-  axiosRequest: typeof axiosRequest;
-  insomniaFetch: typeof insomniaFetch;
-  showContextMenu: (options: { key: string }) => void;
+    loginStateChange: () => void;
+    openInBrowser: (url: string) => void;
+    restart: () => void;
+    halfSecondAfterAppStart: () => void;
+    manualUpdateCheck: () => void;
+    backup: () => Promise<void>;
+    restoreBackup: (version: string) => Promise<void>;
+    spectralRun: (options: { contents: string; rulesetPath: string }) => Promise<ISpectralDiagnostic[]>;
+    authorizeUserInWindow: typeof authorizeUserInWindow;
+    setMenuBarVisibility: (visible: boolean) => void;
+    installPlugin: typeof installPlugin;
+    writeFile: (options: { path: string; content: string }) => Promise<string>;
+    cancelCurlRequest: typeof cancelCurlRequest;
+    curlRequest: typeof curlRequest;
+    on: (channel: string, listener: (event: IpcRendererEvent, ...args: any[]) => void) => () => void;
+    webSocket: WebSocketBridgeAPI;
+    grpc: gRPCBridgeAPI;
+    curl: CurlBridgeAPI;
+    trackSegmentEvent: (options: { event: string; properties?: Record<string, unknown> }) => void;
+    trackPageView: (options: { name: string }) => void;
+    axiosRequest: typeof axiosRequest;
+    insomniaFetch: typeof insomniaFetch;
+    showContextMenu: (options: { key: string }) => void;
 }
 export function registerMainHandlers() {
-  ipcMain.handle('insomniaFetch', async (_, options: Parameters<typeof insomniaFetch>[0]) => {
-    return insomniaFetch(options);
-  });
-  ipcMain.handle('axiosRequest', async (_, options: Parameters<typeof axiosRequest>[0]) => {
-    return axiosRequest(options);
-  });
-  ipcMain.on('loginStateChange', async () => {
-    BrowserWindow.getAllWindows().forEach(w => {
-      w.webContents.send('loggedIn');
+    ipcMain.handle('insomniaFetch', async (_, options: Parameters<typeof insomniaFetch>[0]) => {
+        return insomniaFetch(options);
     });
-  });
-  ipcMain.handle('backup', async () => {
-    return backup();
-  });
-  ipcMain.handle('restoreBackup', async (_, options: string) => {
-    return restoreBackup(options);
-  });
-  ipcMain.handle('authorizeUserInWindow', (_, options: Parameters<typeof authorizeUserInWindow>[0]) => {
-    const { url, urlSuccessRegex, urlFailureRegex, sessionId } = options;
-    return authorizeUserInWindow({ url, urlSuccessRegex, urlFailureRegex, sessionId });
-  });
-
-  ipcMain.handle('writeFile', async (_, options: { path: string; content: string }) => {
-    try {
-      await fs.promises.writeFile(options.path, options.content);
-      return options.path;
-    } catch (err) {
-      throw new Error(err);
-    }
-  });
-
-  ipcMain.handle('curlRequest', (_, options: Parameters<typeof curlRequest>[0]) => {
-    return curlRequest(options);
-  });
-
-  ipcMain.on('cancelCurlRequest', (_, requestId: string): void => {
-    cancelCurlRequest(requestId);
-  });
-
-  ipcMain.on('trackSegmentEvent', (_, options: {}): void => {
-  //  removed tracking from insomnia
-  });
-  ipcMain.on('trackPageView', (_, options: { name: string }): void => {
-    // removed tracking from insomnia
-  });
-
-  ipcMain.handle('installPlugin', (_, lookupName: string) => {
-    return installPlugin(lookupName);
-  });
-
-  ipcMain.on('restart', () => {
-    app.relaunch();
-    app.exit();
-  });
-
-  ipcMain.on('openInBrowser', (_, href: string) => {
-    const { protocol } = new URL(href);
-    if (protocol === 'http:' || protocol === 'https:') {
-      // eslint-disable-next-line no-restricted-properties
-      shell.openExternal(href);
-    }
-  });
-
-  ipcMain.handle('spectralRun', async (_, { contents, rulesetPath }: {
-    contents: string;
-    rulesetPath?: string;
-  }) => {
-    const spectral = new Spectral();
-
-    if (rulesetPath) {
-      try {
-        const ruleset = await bundleAndLoadRuleset(rulesetPath, {
-          fs,
-          fetch: (url: string) => {
-            return axiosRequest({ url, method: 'GET' });
-          },
+    ipcMain.handle('axiosRequest', async (_, options: Parameters<typeof axiosRequest>[0]) => {
+        return axiosRequest(options);
+    });
+    ipcMain.on('loginStateChange', async () => {
+        BrowserWindow.getAllWindows().forEach(w => {
+            w.webContents.send('loggedIn');
         });
+    });
+    ipcMain.handle('backup', async () => {
+        return backup();
+    });
+    ipcMain.handle('restoreBackup', async (_, options: string) => {
+        return restoreBackup(options);
+    });
+    ipcMain.handle('authorizeUserInWindow', (_, options: Parameters<typeof authorizeUserInWindow>[0]) => {
+        const { url, urlSuccessRegex, urlFailureRegex, sessionId } = options;
+        return authorizeUserInWindow({ url, urlSuccessRegex, urlFailureRegex, sessionId });
+    });
 
-        spectral.setRuleset(ruleset);
-      } catch (err) {
-        console.log('Error while parsing ruleset:', err);
-        spectral.setRuleset(oas as RulesetDefinition);
-      }
-    } else {
-      spectral.setRuleset(oas as RulesetDefinition);
-    }
+    ipcMain.handle('writeFile', async (_, options: { path: string; content: string }) => {
+        try {
+            await fs.promises.writeFile(options.path, options.content);
+            return options.path;
+        } catch (err) {
+            throw new Error(err);
+        }
+    });
 
-    const diagnostics = await spectral.run(contents);
+    ipcMain.handle('curlRequest', (_, options: Parameters<typeof curlRequest>[0]) => {
+        return curlRequest(options);
+    });
 
-    return diagnostics;
-  });
+    ipcMain.on('cancelCurlRequest', (_, requestId: string): void => {
+        cancelCurlRequest(requestId);
+    });
+
+    ipcMain.on('trackSegmentEvent', (_, options: {}): void => {
+        //  removed tracking from insomnia
+    });
+    ipcMain.on('trackPageView', (_, options: { name: string }): void => {
+    // removed tracking from insomnia
+    });
+
+    ipcMain.handle('installPlugin', (_, lookupName: string) => {
+        return installPlugin(lookupName);
+    });
+
+    ipcMain.on('restart', () => {
+        app.relaunch();
+        app.exit();
+    });
+
+    ipcMain.on('openInBrowser', (_, href: string) => {
+        const { protocol } = new URL(href);
+        if (protocol === 'http:' || protocol === 'https:') {
+            shell.openExternal(href);
+        }
+    });
+
+    ipcMain.handle('spectralRun', async (_, { contents, rulesetPath }: {
+        contents: string;
+        rulesetPath?: string;
+    }) => {
+        const spectral = new Spectral();
+
+        if (rulesetPath) {
+            try {
+                const ruleset = await bundleAndLoadRuleset(rulesetPath, {
+                    fs,
+                    fetch: (url: string) => {
+                        return axiosRequest({ url, method: 'GET' });
+                    }
+                });
+
+                spectral.setRuleset(ruleset);
+            } catch (err) {
+                console.log('Error while parsing ruleset:', err);
+                spectral.setRuleset(oas as RulesetDefinition);
+            }
+        } else {
+            spectral.setRuleset(oas as RulesetDefinition);
+        }
+
+        const diagnostics = await spectral.run(contents);
+
+        return diagnostics;
+    });
 }

@@ -15,54 +15,50 @@ export const isNotDefaultProject = (project: Pick<Project, '_id'>) => !isDefault
 export const projectHasSettings = (project: Pick<Project, '_id'>) => !isDefaultProject(project);
 
 interface CommonProject {
-  name: string;
+    name: string;
 }
 
 export interface Project extends BaseModel, CommonProject {}
 
-export const isProject = (model: Pick<BaseModel, 'type'>): model is Project => (
-  model.type === type
-);
-
-export const isProjectId = (id: string | null) => (
-  id?.startsWith(`${prefix}_`)
-);
-
+export const isProject = (model: Pick<BaseModel, 'type'>): model is Project =>
+    model.type === type;
+export const isProjectId = (id: string | null) =>
+    id?.startsWith(`${prefix}_`);
 export function init(): Partial<Project> {
-  return {
-    name: 'My Project'
-  };
+    return {
+        name: 'My Project'
+    };
 }
 
 export function migrate(project: Project) {
-  return project;
+    return project;
 }
 
 export function createId() {
-  return generateId(prefix);
+    return generateId(prefix);
 }
 
 export function create(patch: Partial<Project> = {}) {
-  return db.docCreate<Project>(type, patch);
+    return db.docCreate<Project>(type, patch);
 }
 
 export function getById(_id: string) {
-  return db.getWhere<Project>(type, { _id });
+    return db.getWhere<Project>(type, { _id });
 }
 
 export function getByRemoteId(remoteId: string) {
-  return db.getWhere<Project>(type, { remoteId });
+    return db.getWhere<Project>(type, { remoteId });
 }
 
 export function remove(project: Project) {
-  return db.remove(project);
+    return db.remove(project);
 }
 
 export function update(project: Project, patch: Partial<Project>) {
-  return db.docUpdate(project, patch);
+    return db.docUpdate(project, patch);
 }
 
 export async function all() {
-  const projects = await db.all<Project>(type);
-  return projects;
+    const projects = await db.all<Project>(type);
+    return projects;
 }

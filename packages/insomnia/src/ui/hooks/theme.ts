@@ -9,79 +9,78 @@ import { RootLoaderData } from '../routes/root';
 import { useSettingsPatcher } from './use-request';
 
 export const useThemes = () => {
-  const {
-    settings,
-  } = useRouteLoaderData('root') as RootLoaderData;
-  const {
-    lightTheme,
-    darkTheme,
-    autoDetectColorScheme,
-    theme,
-    pluginConfig,
-  } = settings;
+    const {
+        settings
+    } = useRouteLoaderData('root') as RootLoaderData;
+    const {
+        lightTheme,
+        darkTheme,
+        autoDetectColorScheme,
+        theme,
+        pluginConfig
+    } = settings;
 
-  const [themes, setThemes] = useState<PluginTheme[]>([]);
+    const [themes, setThemes] = useState<PluginTheme[]>([]);
 
-  useAsync(async () => {
-    const pluginThemes = await getThemes();
-    setThemes(pluginThemes.map(({ theme }) => theme));
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- Reload themes if pluginConfig changes
-  }, [pluginConfig]);
+    useAsync(async () => {
+        const pluginThemes = await getThemes();
+        setThemes(pluginThemes.map(({ theme }) => theme));
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- Reload themes if pluginConfig changes
+    }, [pluginConfig]);
 
-  // Check if the theme is active
-  const isActiveDark = useCallback(({ name }: PluginTheme) => name === darkTheme, [darkTheme]);
-  const isActiveLight = useCallback(({ name }: PluginTheme) => name === lightTheme, [lightTheme]);
+    // Check if the theme is active
+    const isActiveDark = useCallback(({ name }: PluginTheme) => name === darkTheme, [darkTheme]);
+    const isActiveLight = useCallback(({ name }: PluginTheme) => name === lightTheme, [lightTheme]);
 
-  const isActive = useCallback((pluginTheme : PluginTheme) => {
-    if (autoDetectColorScheme) {
-      return isActiveLight(pluginTheme) || isActiveDark(pluginTheme);
-    }
-    return pluginTheme.name === theme;
-  }, [autoDetectColorScheme, isActiveDark, isActiveLight, theme]);
-  const patchSettings = useSettingsPatcher();
+    const isActive = useCallback((pluginTheme : PluginTheme) => {
+        if (autoDetectColorScheme) {
+            return isActiveLight(pluginTheme) || isActiveDark(pluginTheme);
+        }
+        return pluginTheme.name === theme;
+    }, [autoDetectColorScheme, isActiveDark, isActiveLight, theme]);
+    const patchSettings = useSettingsPatcher();
 
-  // Apply the theme and update settings
-  const apply = useCallback(async (patch: Partial<ThemeSettings>) => {
-    applyColorScheme({
-      theme,
-      autoDetectColorScheme,
-      darkTheme,
-      lightTheme,
-      ...patch,
-    });
-    patchSettings(patch);
+    // Apply the theme and update settings
+    const apply = useCallback(async (patch: Partial<ThemeSettings>) => {
+        applyColorScheme({
+            theme,
+            autoDetectColorScheme,
+            darkTheme,
+            lightTheme,
+            ...patch
+        });
+        patchSettings(patch);
+    }, [autoDetectColorScheme, darkTheme, lightTheme, patchSettings, theme]);
 
-  }, [autoDetectColorScheme, darkTheme, lightTheme, patchSettings, theme]);
+    const changeAutoDetect = useCallback(({ target: { checked } }: ChangeEvent<HTMLInputElement>) => apply({ autoDetectColorScheme: checked }), [apply]);
 
-  const changeAutoDetect = useCallback(({ target: { checked } }: ChangeEvent<HTMLInputElement>) => apply({ autoDetectColorScheme: checked }), [apply]);
+    // Activate the theme for the selected color scheme
+    const activate = useCallback(async (themeName: string, colorScheme: ColorScheme) => {
+        switch (colorScheme) {
+            case 'light':
+                await apply({ lightTheme: themeName });
+                break;
 
-  // Activate the theme for the selected color scheme
-  const activate = useCallback(async (themeName: string, colorScheme: ColorScheme) => {
-    switch (colorScheme) {
-      case 'light':
-        await apply({ lightTheme: themeName });
-        break;
+            case 'dark':
+                await apply({ darkTheme: themeName });
+                break;
 
-      case 'dark':
-        await apply({ darkTheme: themeName });
-        break;
+            case 'default':
+                await apply({ theme: themeName });
+                break;
 
-      case 'default':
-        await apply({ theme: themeName });
-        break;
+            default:
+                throw new Error(colorScheme);
+        }
+    }, [apply]);
 
-      default:
-        throw new Error(colorScheme);
-    }
-  }, [apply]);
-
-  return {
-    themes,
-    isActive,
-    isActiveLight,
-    isActiveDark,
-    activate,
-    changeAutoDetect,
-    autoDetectColorScheme,
-  };
+    return {
+        themes,
+        isActive,
+        isActiveLight,
+        isActiveDark,
+        activate,
+        changeAutoDetect,
+        autoDetectColorScheme
+    };
 };

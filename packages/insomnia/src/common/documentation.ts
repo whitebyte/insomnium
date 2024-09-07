@@ -12,20 +12,20 @@ export const docsUnitTesting = insomniaDocs('/insomnia/unit-testing');
 export const docsIntroductionToInsoCLI = insomniaDocs('/inso-cli/introduction');
 
 export const documentationLinks = {
-  introductionToInsomnia: {
-    title: 'Introduction to Insomnium',
-    url: docsIntroductionInsomnia,
-  },
-  workingWithDesignDocs: {
-    title: 'Working with Design Documents',
-    url: docsWorkingWithDesignDocs,
-  },
-  unitTesting: {
-    title: 'Unit Testing',
-    url: docsUnitTesting,
-  },
-  introductionToInsoCLI: {
-    title: 'Introduction to Inso CLI',
-    url: docsIntroductionToInsoCLI,
-  },
+    introductionToInsomnia: {
+        title: 'Introduction to Insomnium',
+        url: docsIntroductionInsomnia
+    },
+    workingWithDesignDocs: {
+        title: 'Working with Design Documents',
+        url: docsWorkingWithDesignDocs
+    },
+    unitTesting: {
+        title: 'Unit Testing',
+        url: docsUnitTesting
+    },
+    introductionToInsoCLI: {
+        title: 'Introduction to Inso CLI',
+        url: docsIntroductionToInsoCLI
+    }
 } as const;

@@ -4,7 +4,7 @@ import { parse } from 'protobufjs';
 import { mockRequestMethods } from '../automock';
 
 it('mocks simple requests', () => {
-  const parsed = parse(`
+    const parsed = parse(`
     syntax = "proto3";
 
     message FooRequest {
@@ -19,17 +19,17 @@ it('mocks simple requests', () => {
         rpc Foo (FooRequest) returns (FooResponse);
     }`);
 
-  const service = parsed.root.lookupService('FooService');
-  const mocked = mockRequestMethods(service);
+    const service = parsed.root.lookupService('FooService');
+    const mocked = mockRequestMethods(service);
 
-  const plain = mocked['Foo']().plain;
-  expect(plain).toStrictEqual({
-    foo: 'Hello',
-  });
+    const plain = mocked['Foo']().plain;
+    expect(plain).toStrictEqual({
+        foo: 'Hello'
+    });
 });
 
 it('mocks requests with nested objects', () => {
-  const parsed = parse(`
+    const parsed = parse(`
     syntax = "proto3";
 
     message BarBarObject {
@@ -52,21 +52,21 @@ it('mocks requests with nested objects', () => {
         rpc Foo (FooRequest) returns (FooResponse);
     }`);
 
-  const service = parsed.root.lookupService('FooService');
-  const mocked = mockRequestMethods(service);
+    const service = parsed.root.lookupService('FooService');
+    const mocked = mockRequestMethods(service);
 
-  const plain = mocked['Foo']().plain;
-  expect(plain).toStrictEqual({
-    bar: {
-      fuzz: {
-        one: 10,
-      },
-    },
-  });
+    const plain = mocked['Foo']().plain;
+    expect(plain).toStrictEqual({
+        bar: {
+            fuzz: {
+                one: 10
+            }
+        }
+    });
 });
 
 it('mocks requests with enums', () => {
-  const parsed = parse(`
+    const parsed = parse(`
     syntax = "proto3";
 
     enum MyEnum {
@@ -87,17 +87,17 @@ it('mocks requests with enums', () => {
         rpc Foo (FooRequest) returns (FooResponse);
     }`);
 
-  const service = parsed.root.lookupService('FooService');
-  const mocked = mockRequestMethods(service);
+    const service = parsed.root.lookupService('FooService');
+    const mocked = mockRequestMethods(service);
 
-  const plain = mocked['Foo']().plain;
-  expect(plain).toStrictEqual({
-    enum: 0,
-  });
+    const plain = mocked['Foo']().plain;
+    expect(plain).toStrictEqual({
+        enum: 0
+    });
 });
 
 it('mocks requests with repeated values', () => {
-  const parsed = parse(`
+    const parsed = parse(`
     syntax = "proto3";
 
     message FooRequest {
@@ -112,11 +112,11 @@ it('mocks requests with repeated values', () => {
         rpc Foo (FooRequest) returns (FooResponse);
     }`);
 
-  const service = parsed.root.lookupService('FooService');
-  const mocked = mockRequestMethods(service);
+    const service = parsed.root.lookupService('FooService');
+    const mocked = mockRequestMethods(service);
 
-  const plain = mocked['Foo']().plain;
-  expect(plain).toStrictEqual({
-    foo: ['Hello'],
-  });
+    const plain = mocked['Foo']().plain;
+    expect(plain).toStrictEqual({
+        foo: ['Hello']
+    });
 });

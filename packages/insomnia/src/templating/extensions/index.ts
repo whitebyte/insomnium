@@ -2,7 +2,7 @@ import { ExtraRenderInfo } from '../../common/render';
 import type { Request } from '../../models/request';
 import type { Response } from '../../models/response';
 import {
-  PluginStore,
+    PluginStore
 } from '../../plugins/context';
 import { AppContext } from '../../plugins/context/app';
 import { HelperContext } from '../base-extension';
@@ -12,50 +12,50 @@ export type PluginArgumentValue = string | number | boolean;
 export type DisplayName = string | ((args: NunjucksParsedTagArg[]) => string);
 
 interface PluginArgumentBase {
-  displayName: DisplayName;
-  description?: string;
-  help?: string;
-  hide?: (args: NunjucksParsedTagArg[]) => boolean;
+    displayName: DisplayName;
+    description?: string;
+    help?: string;
+    hide?: (args: NunjucksParsedTagArg[]) => boolean;
 }
 
 export interface PluginArgumentEnumOption {
-  displayName: DisplayName;
-  value: PluginArgumentValue;
-  description?: string;
-  placeholder?: string;
+    displayName: DisplayName;
+    value: PluginArgumentValue;
+    description?: string;
+    placeholder?: string;
 }
 
 export type PluginArgumentEnum = PluginArgumentBase & {
-  type: 'enum';
-  options: PluginArgumentEnumOption[];
-  defaultValue?: PluginArgumentValue;
+    type: 'enum';
+    options: PluginArgumentEnumOption[];
+    defaultValue?: PluginArgumentValue;
 };
 
 export type PluginArgumentModel = PluginArgumentBase & {
-  type: 'model';
-  model: string;
-  defaultValue?: string;
+    type: 'model';
+    model: string;
+    defaultValue?: string;
 };
 
 export type PluginArgumentString = PluginArgumentBase & {
-  type: 'string';
-  placeholder?: string;
-  defaultValue?: string;
+    type: 'string';
+    placeholder?: string;
+    defaultValue?: string;
 };
 
 export type PluginArgumentBoolean = PluginArgumentBase & {
-  type: 'boolean';
-  defaultValue?: boolean;
+    type: 'boolean';
+    defaultValue?: boolean;
 };
 
 export type PluginArgumentFile = PluginArgumentBase & {
-  type: 'file';
+    type: 'file';
 };
 
 export type PluginArgumentNumber = PluginArgumentBase & {
-  type: 'number';
-  placeholder?: string;
-  defaultValue?: number;
+    type: 'number';
+    placeholder?: string;
+    defaultValue?: number;
 };
 
 export type PluginArgument =
@@ -67,43 +67,43 @@ export type PluginArgument =
   | PluginArgumentNumber;
 
 export type PluginTemplateTagContext = HelperContext & {
-  app: AppContext;
-  store:  PluginStore;
-  network: {
-    sendRequest(request: Request, extraInfo?: ExtraRenderInfo): Promise<Response>;
-  };
-  util: {
-    models: {
-      request: {
-        getById: (id: string) => Promise<Request | null>;
-      };
-      response: {
-        getLatestForRequestId: (id: string) => Promise<Response | null>;
-        getBodyBuffer: (response: Response, fallback?: any) => Promise<Buffer | null>;
-      };
+    app: AppContext;
+    store: PluginStore;
+    network: {
+        sendRequest(request: Request, extraInfo?: ExtraRenderInfo): Promise<Response>;
     };
-  };
+    util: {
+        models: {
+            request: {
+                getById: (id: string) => Promise<Request | null>;
+            };
+            response: {
+                getLatestForRequestId: (id: string) => Promise<Response | null>;
+                getBodyBuffer: (response: Response, fallback?: any) => Promise<Buffer | null>;
+            };
+        };
+    };
 };
 
 export interface PluginTemplateTagActionContext {
-  store: PluginStore;
+    store: PluginStore;
 }
 
 export interface PluginTemplateTagAction {
-  name: string;
-  icon?: string;
-  run: (context: PluginTemplateTagActionContext) => Promise<void>;
+    name: string;
+    icon?: string;
+    run: (context: PluginTemplateTagActionContext) => Promise<void>;
 }
 
 export interface PluginTemplateTag {
-  args: NunjucksParsedTagArg[];
-  name: string;
-  displayName: DisplayName;
-  disablePreview?: (args: any[]) => boolean;
-  description: string;
-  actions?: NunjucksActionTag[];
-  run: (context: PluginTemplateTagContext, ...arg: any[]) => Promise<any> | any;
-  deprecated?: boolean;
-  validate?: (value: any) => string | null;
-  priority?: number;
+    args: NunjucksParsedTagArg[];
+    name: string;
+    displayName: DisplayName;
+    disablePreview?: (args: any[]) => boolean;
+    description: string;
+    actions?: NunjucksActionTag[];
+    run: (context: PluginTemplateTagContext, ...arg: any[]) => Promise<any> | any;
+    deprecated?: boolean;
+    validate?: (value: any) => string | null;
+    priority?: number;
 }

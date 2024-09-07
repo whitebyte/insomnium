@@ -4,18 +4,18 @@ import React, { FC } from 'react';
 import { GraphQLExplorerTypeLink } from './graph-ql-explorer-type-link';
 
 interface Props {
-  args?: readonly GraphQLArgument[];
-  onNavigate: (type: GraphQLType) => void;
+    args?: readonly GraphQLArgument[];
+    onNavigate: (type: GraphQLType) => void;
 }
 
 export const GraphQLExplorerArgLinks: FC<Props> = ({
-  args,
-  onNavigate,
+    args,
+    onNavigate
 }) => <>
-  {args ? args.map(a => (
-    <div key={a.name} className="graphql-explorer__defs__arg">
-      <span className="info">{a.name}</span>:{' '}
-      <GraphQLExplorerTypeLink onNavigate={onNavigate} type={a.type} />
-    </div>
-  )) : null}
+    {args ? args.map(a =>
+        <div key={a.name} className="graphql-explorer__defs__arg">
+            <span className="info">{a.name}</span>:{' '}
+            <GraphQLExplorerTypeLink onNavigate={onNavigate} type={a.type} />
+        </div>
+    ) : null}
 </>;

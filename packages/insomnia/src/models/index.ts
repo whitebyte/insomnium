@@ -1,17 +1,17 @@
 import {
-  EXPORT_TYPE_API_SPEC,
-  EXPORT_TYPE_COOKIE_JAR,
-  EXPORT_TYPE_ENVIRONMENT,
-  EXPORT_TYPE_GRPC_REQUEST,
-  EXPORT_TYPE_PROTO_DIRECTORY,
-  EXPORT_TYPE_PROTO_FILE,
-  EXPORT_TYPE_REQUEST,
-  EXPORT_TYPE_REQUEST_GROUP,
-  EXPORT_TYPE_UNIT_TEST,
-  EXPORT_TYPE_UNIT_TEST_SUITE,
-  EXPORT_TYPE_WEBSOCKET_PAYLOAD,
-  EXPORT_TYPE_WEBSOCKET_REQUEST,
-  EXPORT_TYPE_WORKSPACE,
+    EXPORT_TYPE_API_SPEC,
+    EXPORT_TYPE_COOKIE_JAR,
+    EXPORT_TYPE_ENVIRONMENT,
+    EXPORT_TYPE_GRPC_REQUEST,
+    EXPORT_TYPE_PROTO_DIRECTORY,
+    EXPORT_TYPE_PROTO_FILE,
+    EXPORT_TYPE_REQUEST,
+    EXPORT_TYPE_REQUEST_GROUP,
+    EXPORT_TYPE_UNIT_TEST,
+    EXPORT_TYPE_UNIT_TEST_SUITE,
+    EXPORT_TYPE_WEBSOCKET_PAYLOAD,
+    EXPORT_TYPE_WEBSOCKET_REQUEST,
+    EXPORT_TYPE_WORKSPACE
 } from '../common/constants';
 import { generateId } from '../common/misc';
 import * as _apiSpec from './api-spec';
@@ -44,16 +44,16 @@ import * as _workspace from './workspace';
 import * as _workspaceMeta from './workspace-meta';
 
 export interface BaseModel {
-  _id: string;
-  type: string;
-  // TSCONVERSION -- parentId is always required for all models, except 4:
-  //   - Stats, Settings, and Project, which never have a parentId
-  //   - Workspace optionally has a parentId (which will be the id of a Project)
-  parentId: string; // or null
-  modified: number;
-  created: number;
-  isPrivate: boolean;
-  name: string;
+    _id: string;
+    type: string;
+    // TSCONVERSION -- parentId is always required for all models, except 4:
+    //   - Stats, Settings, and Project, which never have a parentId
+    //   - Workspace optionally has a parentId (which will be the id of a Project)
+    parentId: string; // or null
+    modified: number;
+    created: number;
+    isPrivate: boolean;
+    name: string;
 }
 
 // Reference to each model
@@ -87,135 +87,135 @@ export const workspace = _workspace;
 export const workspaceMeta = _workspaceMeta;
 
 export function all() {
-  // NOTE: This list should be from most to least specific (ie. parents above children)
-  // For example, stats, settings, project and workspace are global models, with project and workspace being the top-most parents,
-  // so they must be at the top
-  return [
-    stats,
-    settings,
-    project,
-    workspace,
-    workspaceMeta,
-    environment,
-    cookieJar,
-    apiSpec,
-    requestGroup,
-    requestGroupMeta,
-    request,
-    requestVersion,
-    requestMeta,
-    response,
-    oAuth2Token,
-    caCertificate,
-    clientCertificate,
-    pluginData,
-    unitTestSuite,
-    unitTestResult,
-    unitTest,
-    protoFile,
-    protoDirectory,
-    grpcRequest,
-    grpcRequestMeta,
-    webSocketPayload,
-    webSocketRequest,
-    webSocketResponse,
-  ] as const;
+    // NOTE: This list should be from most to least specific (ie. parents above children)
+    // For example, stats, settings, project and workspace are global models, with project and workspace being the top-most parents,
+    // so they must be at the top
+    return [
+        stats,
+        settings,
+        project,
+        workspace,
+        workspaceMeta,
+        environment,
+        cookieJar,
+        apiSpec,
+        requestGroup,
+        requestGroupMeta,
+        request,
+        requestVersion,
+        requestMeta,
+        response,
+        oAuth2Token,
+        caCertificate,
+        clientCertificate,
+        pluginData,
+        unitTestSuite,
+        unitTestResult,
+        unitTest,
+        protoFile,
+        protoDirectory,
+        grpcRequest,
+        grpcRequestMeta,
+        webSocketPayload,
+        webSocketRequest,
+        webSocketResponse
+    ] as const;
 }
 
 export function types() {
-  return all().map(model => model.type);
+    return all().map(model => model.type);
 }
 
 export function canSync(d: BaseModel) {
-  if (d.isPrivate) {
-    return false;
-  }
+    if (d.isPrivate) {
+        return false;
+    }
 
-  const m = getModel(d.type);
+    const m = getModel(d.type);
 
-  if (!m) {
-    return false;
-  }
+    if (!m) {
+        return false;
+    }
 
-  return m.canSync || false;
+    return m.canSync || false;
 }
 
 export function getModel(type: string) {
-  return all().find(m => m.type === type) || null;
+    return all().find(m => m.type === type) || null;
 }
 
 export function mustGetModel(type: string) {
-  const model = getModel(type);
+    const model = getModel(type);
 
-  if (!model) {
-    throw new Error(`The model type ${type} must exist but could not be found.`);
-  }
+    if (!model) {
+        throw new Error(`The model type ${type} must exist but could not be found.`);
+    }
 
-  return model;
+    return model;
 }
 
 export function canDuplicate(type: string) {
-  const model = getModel(type);
-  return model ? model.canDuplicate : false;
+    const model = getModel(type);
+    return model ? model.canDuplicate : false;
 }
 
 export async function initModel<T extends BaseModel>(type: string, ...sources: Record<string, any>[]): Promise<T> {
-  const model = getModel(type);
+    const model = getModel(type);
 
-  if (!model) {
-    const choices = all()
-      .map(m => m.type)
-      .join(', ');
-    throw new Error(`Tried to init invalid model "${type}". Choices are ${choices}`);
-  }
-
-  // Define global default fields
-  const objectDefaults = Object.assign(
-    {},
-    {
-      _id: null,
-      type: type,
-      parentId: null,
-      modified: Date.now(),
-      created: Date.now(),
-    },
-    model.init(),
-  );
-  const fullObject = Object.assign({}, objectDefaults, ...sources);
-
-  // Generate an _id if there isn't one yet
-  if (!fullObject._id) {
-    fullObject._id = generateId(model.prefix);
-  }
-
-  // Migrate the model
-  // NOTE: Do migration before pruning because we might need to look at those fields
-  const migratedDoc = model.migrate(fullObject);
-
-  // Prune extra keys from doc
-  for (const key of Object.keys(migratedDoc)) {
-    if (!objectDefaults.hasOwnProperty(key)) {
-      // @ts-expect-error -- mapping unsoundness
-      delete migratedDoc[key];
+    if (!model) {
+        const choices = all()
+            .map(m => m.type)
+            .join(', ');
+        throw new Error(`Tried to init invalid model "${type}". Choices are ${choices}`);
     }
-  }
 
-  // @ts-expect-error -- TSCONVERSION not sure why this error is occurring
-  return migratedDoc;
+    // Define global default fields
+    const objectDefaults = Object.assign(
+        {},
+        {
+            _id: null,
+            type: type,
+            parentId: null,
+            modified: Date.now(),
+            created: Date.now()
+        },
+        model.init()
+    );
+    const fullObject = Object.assign({}, objectDefaults, ...sources);
+
+    // Generate an _id if there isn't one yet
+    if (!fullObject._id) {
+        fullObject._id = generateId(model.prefix);
+    }
+
+    // Migrate the model
+    // NOTE: Do migration before pruning because we might need to look at those fields
+    const migratedDoc = model.migrate(fullObject);
+
+    // Prune extra keys from doc
+    for (const key of Object.keys(migratedDoc)) {
+        if (!objectDefaults.hasOwnProperty(key)) {
+            // @ts-expect-error -- mapping unsoundness
+            delete migratedDoc[key];
+        }
+    }
+
+    // @ts-expect-error -- TSCONVERSION not sure why this error is occurring
+    return migratedDoc;
 }
 
 export const MODELS_BY_EXPORT_TYPE: Record<string, any> = {
-  [EXPORT_TYPE_REQUEST]: request,
-  [EXPORT_TYPE_WEBSOCKET_PAYLOAD]: webSocketPayload,
-  [EXPORT_TYPE_WEBSOCKET_REQUEST]: webSocketRequest,
-  [EXPORT_TYPE_GRPC_REQUEST]: grpcRequest,
-  [EXPORT_TYPE_REQUEST_GROUP]: requestGroup,
-  [EXPORT_TYPE_UNIT_TEST_SUITE]: unitTestSuite,
-  [EXPORT_TYPE_UNIT_TEST]: unitTest,
-  [EXPORT_TYPE_WORKSPACE]: workspace,
-  [EXPORT_TYPE_COOKIE_JAR]: cookieJar,
-  [EXPORT_TYPE_ENVIRONMENT]: environment,
-  [EXPORT_TYPE_API_SPEC]: apiSpec,
-  [EXPORT_TYPE_PROTO_FILE]: protoFile,
-  [EXPORT_TYPE_PROTO_DIRECTORY]: protoDirectory,
+    [EXPORT_TYPE_REQUEST]: request,
+    [EXPORT_TYPE_WEBSOCKET_PAYLOAD]: webSocketPayload,
+    [EXPORT_TYPE_WEBSOCKET_REQUEST]: webSocketRequest,
+    [EXPORT_TYPE_GRPC_REQUEST]: grpcRequest,
+    [EXPORT_TYPE_REQUEST_GROUP]: requestGroup,
+    [EXPORT_TYPE_UNIT_TEST_SUITE]: unitTestSuite,
+    [EXPORT_TYPE_UNIT_TEST]: unitTest,
+    [EXPORT_TYPE_WORKSPACE]: workspace,
+    [EXPORT_TYPE_COOKIE_JAR]: cookieJar,
+    [EXPORT_TYPE_ENVIRONMENT]: environment,
+    [EXPORT_TYPE_API_SPEC]: apiSpec,
+    [EXPORT_TYPE_PROTO_FILE]: protoFile,
+    [EXPORT_TYPE_PROTO_DIRECTORY]: protoDirectory
 };

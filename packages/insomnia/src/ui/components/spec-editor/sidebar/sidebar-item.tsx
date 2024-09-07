@@ -2,9 +2,9 @@ import React, { FunctionComponent, ReactNode } from 'react';
 import styled from 'styled-components';
 
 export interface SidebarItemProps {
-  children: ReactNode;
-  gridLayout?: boolean;
-  onClick?: () => void;
+    children: ReactNode;
+    gridLayout?: boolean;
+    onClick?: () => void;
 }
 
 const StyledBlockItem = styled.div`
@@ -76,9 +76,9 @@ const StyledGridItem = styled.li`
 `;
 
 export const SidebarItem: FunctionComponent<SidebarItemProps> = ({ children, gridLayout, onClick }) => {
-  if (gridLayout) {
-    return <StyledGridItem onClick={onClick}>{children}</StyledGridItem>;
-  } else {
-    return <StyledBlockItem onClick={onClick}>{children}</StyledBlockItem>;
-  }
+    if (gridLayout) {
+        return <StyledGridItem onClick={onClick}>{children}</StyledGridItem>;
+    } else {
+        return <StyledBlockItem onClick={onClick}>{children}</StyledBlockItem>;
+    }
 };

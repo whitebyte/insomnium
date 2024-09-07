@@ -11,7 +11,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 describe('dummy', () => {
-  it('does it', () => {
-    expect(true).toBe(true);
-  });
+    it('does it', () => {
+        expect(true).toBe(true);
+    });
 });

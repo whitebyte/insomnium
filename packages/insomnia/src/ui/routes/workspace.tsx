@@ -20,7 +20,7 @@ import { isRequestGroup, RequestGroup } from '../../models/request-group';
 import { RequestGroupMeta } from '../../models/request-group-meta';
 import { RequestMeta } from '../../models/request-meta';
 import {
-  WebSocketRequest,
+    WebSocketRequest
 } from '../../models/websocket-request';
 import { Workspace } from '../../models/workspace';
 import { WorkspaceMeta } from '../../models/workspace-meta';
@@ -29,79 +29,79 @@ import { guard } from '../../utils/guard';
 type Collection = Child[];
 
 export interface WorkspaceLoaderData {
-  activeWorkspace: Workspace;
-  activeWorkspaceMeta: WorkspaceMeta;
-  activeProject: Project;
-  activeEnvironment: Environment;
-  activeCookieJar: CookieJar;
-  baseEnvironment: Environment;
-  subEnvironments: Environment[];
-  activeApiSpec: ApiSpec | null;
-  clientCertificates: ClientCertificate[];
-  caCertificate: CaCertificate | null;
-  projects: Project[];
-  requestTree: Child[];
-  grpcRequests: GrpcRequest[];
-  collection: Collection;
+    activeWorkspace: Workspace;
+    activeWorkspaceMeta: WorkspaceMeta;
+    activeProject: Project;
+    activeEnvironment: Environment;
+    activeCookieJar: CookieJar;
+    baseEnvironment: Environment;
+    subEnvironments: Environment[];
+    activeApiSpec: ApiSpec | null;
+    clientCertificates: ClientCertificate[];
+    caCertificate: CaCertificate | null;
+    projects: Project[];
+    requestTree: Child[];
+    grpcRequests: GrpcRequest[];
+    collection: Collection;
 }
 export interface Child {
-  doc: Request | GrpcRequest | WebSocketRequest | RequestGroup;
-  children: Child[];
-  collapsed: boolean;
-  hidden: boolean;
-  pinned: boolean;
-  level: number;
-  ancestors?: string[];
+    doc: Request | GrpcRequest | WebSocketRequest | RequestGroup;
+    children: Child[];
+    collapsed: boolean;
+    hidden: boolean;
+    pinned: boolean;
+    level: number;
+    ancestors?: string[];
 }
 
 export const workspaceLoader: LoaderFunction = async ({
-  request,
-  params,
+    request,
+    params
 }): Promise<WorkspaceLoaderData> => {
-  const { projectId, workspaceId } = params;
-  guard(workspaceId, 'Workspace ID is required');
-  guard(projectId, 'Project ID is required');
+    const { projectId, workspaceId } = params;
+    guard(workspaceId, 'Workspace ID is required');
+    guard(projectId, 'Project ID is required');
 
-  const activeWorkspace = await models.workspace.getById(workspaceId);
-  guard(activeWorkspace, 'Workspace not found');
+    const activeWorkspace = await models.workspace.getById(workspaceId);
+    guard(activeWorkspace, 'Workspace not found');
 
-  // I don't know what to say man, this is just how it is
-  await models.environment.getOrCreateForParentId(workspaceId);
-  await models.cookieJar.getOrCreateForParentId(workspaceId);
+    // I don't know what to say man, this is just how it is
+    await models.environment.getOrCreateForParentId(workspaceId);
+    await models.cookieJar.getOrCreateForParentId(workspaceId);
 
-  const activeProject = await models.project.getById(projectId);
-  guard(activeProject, 'Project not found');
+    const activeProject = await models.project.getById(projectId);
+    guard(activeProject, 'Project not found');
 
-  const activeWorkspaceMeta = await models.workspaceMeta.getOrCreateByParentId(
-    workspaceId,
-  );
-  guard(activeWorkspaceMeta, 'Workspace meta not found');
+    const activeWorkspaceMeta = await models.workspaceMeta.getOrCreateByParentId(
+        workspaceId
+    );
+    guard(activeWorkspaceMeta, 'Workspace meta not found');
 
-  const baseEnvironment = await models.environment.getByParentId(workspaceId);
-  guard(baseEnvironment, 'Base environment not found');
+    const baseEnvironment = await models.environment.getByParentId(workspaceId);
+    guard(baseEnvironment, 'Base environment not found');
 
-  const subEnvironments = (
-    await models.environment.findByParentId(baseEnvironment._id)
-  ).sort((e1, e2) => e1.metaSortKey - e2.metaSortKey);
+    const subEnvironments = (
+        await models.environment.findByParentId(baseEnvironment._id)
+    ).sort((e1, e2) => e1.metaSortKey - e2.metaSortKey);
 
-  const activeEnvironment =
+    const activeEnvironment =
     subEnvironments.find(
-      ({ _id }) => activeWorkspaceMeta.activeEnvironmentId === _id,
+        ({ _id }) => activeWorkspaceMeta.activeEnvironmentId === _id
     ) || baseEnvironment;
 
-  const activeCookieJar = await models.cookieJar.getOrCreateForParentId(
-    workspaceId,
-  );
-  guard(activeCookieJar, 'Cookie jar not found');
+    const activeCookieJar = await models.cookieJar.getOrCreateForParentId(
+        workspaceId
+    );
+    guard(activeCookieJar, 'Cookie jar not found');
 
-  const activeApiSpec = await models.apiSpec.getByParentId(workspaceId);
-  const clientCertificates = await models.clientCertificate.findByParentId(
-    workspaceId
-  );
+    const activeApiSpec = await models.apiSpec.getByParentId(workspaceId);
+    const clientCertificates = await models.clientCertificate.findByParentId(
+        workspaceId
+    );
 
-  const allProjects = await models.project.all();
-  const projects = sortProjects(allProjects);
-  const syncItemsList: (
+    const allProjects = await models.project.all();
+    const projects = sortProjects(allProjects);
+    const syncItemsList: (
     | Workspace
     | Environment
     | ApiSpec
@@ -109,148 +109,148 @@ export const workspaceLoader: LoaderFunction = async ({
     | WebSocketRequest
     | GrpcRequest
     | RequestGroup
-  )[] = [];
+    )[] = [];
 
-  const searchParams = new URL(request.url).searchParams;
-  const filter = searchParams.get('filter');
-  const sortOrder = searchParams.get('sortOrder') as SortOrder;
-  const sortFunction = sortMethodMap[sortOrder] || sortMethodMap['type-manual'];
+    const searchParams = new URL(request.url).searchParams;
+    const filter = searchParams.get('filter');
+    const sortOrder = searchParams.get('sortOrder') as SortOrder;
+    const sortFunction = sortMethodMap[sortOrder] || sortMethodMap['type-manual'];
 
-  // first recursion to get all the folders ids in order to use nedb search by an array
-  const flattenFoldersIntoList = async (id: string): Promise<string[]> => {
-    const parentIds: string[] = [id];
-    const folderIds = (await models.requestGroup.findByParentId(id)).map(r => r._id);
-    if (folderIds.length) {
-      await Promise.all(folderIds.map(async folderIds => parentIds.push(...(await flattenFoldersIntoList(folderIds)))));
+    // first recursion to get all the folders ids in order to use nedb search by an array
+    const flattenFoldersIntoList = async (id: string): Promise<string[]> => {
+        const parentIds: string[] = [id];
+        const folderIds = (await models.requestGroup.findByParentId(id)).map(r => r._id);
+        if (folderIds.length) {
+            await Promise.all(folderIds.map(async folderIds => parentIds.push(...await flattenFoldersIntoList(folderIds))));
+        }
+        return parentIds;
+    };
+    const listOfParentIds = await flattenFoldersIntoList(activeWorkspace._id);
+
+    const reqs = await database.find(models.request.type, { parentId: { $in: listOfParentIds } });
+    const reqGroups = await database.find(models.requestGroup.type, { parentId: { $in: listOfParentIds } });
+    const grpcReqs = await database.find(models.grpcRequest.type, { parentId: { $in: listOfParentIds } }) as GrpcRequest[];
+    const wsReqs = await database.find(models.webSocketRequest.type, { parentId: { $in: listOfParentIds } });
+    const allRequests = [...reqs, ...reqGroups, ...grpcReqs, ...wsReqs] as (Request | RequestGroup | GrpcRequest | WebSocketRequest)[];
+
+    const requestMetas = await database.find(models.requestMeta.type, { parentId: { $in: reqs.map(r => r._id) } });
+    const grpcRequestMetas = await database.find(models.grpcRequestMeta.type, { parentId: { $in: grpcReqs.map(r => r._id) } });
+    const grpcAndRequestMetas = [...requestMetas, ...grpcRequestMetas] as (RequestMeta | GrpcRequestMeta)[];
+    const requestGroupMetas = await database.find(models.requestGroupMeta.type, { parentId: { $in: listOfParentIds } }) as RequestGroupMeta[];
+
+    // team sync needs an up to date list of eveything in the workspace to detect changes
+    // TODO: move this to somewhere more approriate
+    allRequests.map(r => syncItemsList.push(r));
+    syncItemsList.push(activeWorkspace);
+    syncItemsList.push(baseEnvironment);
+    subEnvironments.forEach(e => syncItemsList.push(e));
+    if (activeApiSpec) {
+        syncItemsList.push(activeApiSpec);
     }
-    return parentIds;
-  };
-  const listOfParentIds = await flattenFoldersIntoList(activeWorkspace._id);
 
-  const reqs = await database.find(models.request.type, { parentId: { $in: listOfParentIds } });
-  const reqGroups = await database.find(models.requestGroup.type, { parentId: { $in: listOfParentIds } });
-  const grpcReqs = await database.find(models.grpcRequest.type, { parentId: { $in: listOfParentIds } }) as GrpcRequest[];
-  const wsReqs = await database.find(models.webSocketRequest.type, { parentId: { $in: listOfParentIds } });
-  const allRequests = [...reqs, ...reqGroups, ...grpcReqs, ...wsReqs] as (Request | RequestGroup | GrpcRequest | WebSocketRequest)[];
+    // second recursion to build the tree
+    const getCollectionTree = async ({
+        parentId,
+        level,
+        parentIsCollapsed,
+        ancestors
+    }: {
+        parentId: string; level: number; parentIsCollapsed: boolean; ancestors: string[];
+    }): Promise<Child[]> => {
+        const levelReqs = allRequests.filter(r => r.parentId === parentId);
 
-  const requestMetas = await database.find(models.requestMeta.type, { parentId: { $in: reqs.map(r => r._id) } });
-  const grpcRequestMetas = await database.find(models.grpcRequestMeta.type, { parentId: { $in: grpcReqs.map(r => r._id) } });
-  const grpcAndRequestMetas = [...requestMetas, ...grpcRequestMetas] as (RequestMeta | GrpcRequestMeta)[];
-  const requestGroupMetas = await database.find(models.requestGroupMeta.type, { parentId: { $in: listOfParentIds } }) as RequestGroupMeta[];
+        const childrenWithChildren: Child[] = await Promise.all(levelReqs
+            .sort(sortFunction)
+            .map(async (doc): Promise<Child> => {
+                const isMatched = (filter: string): boolean =>
+                    Boolean(fuzzyMatchAll(
+                        filter,
+                        [
+                            doc.name,
+                            doc.description,
+                            ...isRequestGroup(doc) ? [] : [doc.url]
+                        ],
+                        { splitSpace: true, loose: true }
+                    )?.indexes);
+                const shouldHide = Boolean(filter && !isMatched(filter));
+                const hidden = parentIsCollapsed || shouldHide;
 
-  // team sync needs an up to date list of eveything in the workspace to detect changes
-  // TODO: move this to somewhere more approriate
-  allRequests.map(r => syncItemsList.push(r));
-  syncItemsList.push(activeWorkspace);
-  syncItemsList.push(baseEnvironment);
-  subEnvironments.forEach(e => syncItemsList.push(e));
-  if (activeApiSpec) {
-    syncItemsList.push(activeApiSpec);
-  }
-
-  // second recursion to build the tree
-  const getCollectionTree = async ({
-    parentId,
-    level,
-    parentIsCollapsed,
-    ancestors,
-  }: {
-      parentId: string; level: number; parentIsCollapsed: boolean; ancestors: string[];
-  }): Promise<Child[]> => {
-    const levelReqs = allRequests.filter(r => r.parentId === parentId);
-
-    const childrenWithChildren: Child[] = await Promise.all(levelReqs
-        .sort(sortFunction)
-        .map(async (doc): Promise<Child> => {
-          const isMatched = (filter: string): boolean =>
-            Boolean(fuzzyMatchAll(
-              filter,
-              [
-                doc.name,
-                doc.description,
-                ...(isRequestGroup(doc) ? [] : [doc.url]),
-              ],
-              { splitSpace: true, loose: true }
-            )?.indexes);
-          const shouldHide = Boolean(filter && !isMatched(filter));
-          const hidden = parentIsCollapsed || shouldHide;
-
-          const pinned =
+                const pinned =
             !isRequestGroup(doc) && grpcAndRequestMetas.find(m => m.parentId === doc._id)?.pinned || false;
-          const collapsed = filter
-            ? false
-            : parentIsCollapsed ||
-              (isRequestGroup(doc) &&
-              requestGroupMetas.find(m => m.parentId === doc._id)?.collapsed) ||
+                const collapsed = filter
+                    ? false
+                    : parentIsCollapsed ||
+              isRequestGroup(doc) &&
+              requestGroupMetas.find(m => m.parentId === doc._id)?.collapsed ||
               false;
 
-          const docAncestors = [...ancestors, parentId];
+                const docAncestors = [...ancestors, parentId];
 
-          return {
-            doc,
-            pinned,
-            collapsed,
-            hidden,
-            level,
-            ancestors: docAncestors,
-            children: await getCollectionTree({
-              parentId: doc._id,
-              level: level + 1,
-              parentIsCollapsed: collapsed,
-              ancestors: docAncestors,
-            }),
-          };
-        }),
-    );
+                return {
+                    doc,
+                    pinned,
+                    collapsed,
+                    hidden,
+                    level,
+                    ancestors: docAncestors,
+                    children: await getCollectionTree({
+                        parentId: doc._id,
+                        level: level + 1,
+                        parentIsCollapsed: collapsed,
+                        ancestors: docAncestors
+                    })
+                };
+            })
+        );
 
-    return childrenWithChildren;
-  };
-  const requestTree = await getCollectionTree({
-    parentId: activeWorkspace._id,
-    level: 0,
-    parentIsCollapsed: false,
-    ancestors: [],
-  });
-
-  function flattenTree() {
-    const collection: Collection = [];
-    const tree = requestTree;
-
-    const build = (node: Child) => {
-      if (isRequestGroup(node.doc)) {
-        collection.push(node);
-        node.children.forEach(child => build(child));
-      } else {
-        collection.push(node);
-      }
+        return childrenWithChildren;
     };
-    tree.forEach(node => build(node));
+    const requestTree = await getCollectionTree({
+        parentId: activeWorkspace._id,
+        level: 0,
+        parentIsCollapsed: false,
+        ancestors: []
+    });
 
-    return collection;
-  }
+    function flattenTree() {
+        const collection: Collection = [];
+        const tree = requestTree;
 
-  return {
-    activeWorkspace,
-    activeProject,
-    activeWorkspaceMeta,
-    activeCookieJar,
-    activeEnvironment,
-    subEnvironments,
-    baseEnvironment,
-    activeApiSpec,
-    clientCertificates,
-    caCertificate: await models.caCertificate.findByParentId(workspaceId),
-    projects,
-    requestTree,
-    // TODO: remove this state hack when the grpc responses go somewhere else
-    grpcRequests: grpcReqs,
-    collection: flattenTree(),
-  };
+        const build = (node: Child) => {
+            if (isRequestGroup(node.doc)) {
+                collection.push(node);
+                node.children.forEach(child => build(child));
+            } else {
+                collection.push(node);
+            }
+        };
+        tree.forEach(node => build(node));
+
+        return collection;
+    }
+
+    return {
+        activeWorkspace,
+        activeProject,
+        activeWorkspaceMeta,
+        activeCookieJar,
+        activeEnvironment,
+        subEnvironments,
+        baseEnvironment,
+        activeApiSpec,
+        clientCertificates,
+        caCertificate: await models.caCertificate.findByParentId(workspaceId),
+        projects,
+        requestTree,
+        // TODO: remove this state hack when the grpc responses go somewhere else
+        grpcRequests: grpcReqs,
+        collection: flattenTree()
+    };
 };
 
 const WorkspaceRoute = () => {
-  const workspaceData = useLoaderData() as WorkspaceLoaderData;
-  return <Outlet key={null} />;
+    const workspaceData = useLoaderData() as WorkspaceLoaderData;
+    return <Outlet key={null} />;
 };
 
 export default WorkspaceRoute;

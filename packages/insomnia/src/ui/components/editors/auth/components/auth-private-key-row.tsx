@@ -23,40 +23,40 @@ cJV+wRTs/Szp6LXAgMmTkKMJ+9XXErUIUgwbl27Y3Rv/9ox1p5VRg+A=
 `.trim();
 
 interface Props {
-  label: string;
-  property: string;
-  help?: ReactNode;
+    label: string;
+    property: string;
+    help?: ReactNode;
 }
 
 export const AuthPrivateKeyRow: FC<Props> = ({ label, property, help }) => {
-  const { activeRequest: { authentication, _id: requestId } } = useRouteLoaderData('request/:requestId') as RequestLoaderData;
-  const patchRequest = useRequestSetter();
-  const { handleGetRenderContext, handleRender } = useNunjucks();
+    const { activeRequest: { authentication, _id: requestId } } = useRouteLoaderData('request/:requestId') as RequestLoaderData;
+    const patchRequest = useRequestSetter();
+    const { handleGetRenderContext, handleRender } = useNunjucks();
 
-  const privateKey = authentication[property];
-  const onChange = useCallback((value: string) => patchRequest(requestId, { authentication: { ...authentication, [property]: value } }), [authentication, patchRequest, property, requestId]);
+    const privateKey = authentication[property];
+    const onChange = useCallback((value: string) => patchRequest(requestId, { authentication: { ...authentication, [property]: value } }), [authentication, patchRequest, property, requestId]);
 
-  const editPrivateKey = () => {
-    showModal(CodePromptModal, {
-      submitName: 'Done',
-      title: 'Edit Private Key',
-      defaultValue: privateKey,
-      onChange,
-      enableRender: Boolean(handleRender || handleGetRenderContext),
-      placeholder: PRIVATE_KEY_PLACEHOLDER,
-      mode: 'text/plain',
-      hideMode: true,
-    });
-  };
+    const editPrivateKey = () => {
+        showModal(CodePromptModal, {
+            submitName: 'Done',
+            title: 'Edit Private Key',
+            defaultValue: privateKey,
+            onChange,
+            enableRender: Boolean(handleRender || handleGetRenderContext),
+            placeholder: PRIVATE_KEY_PLACEHOLDER,
+            mode: 'text/plain',
+            hideMode: true
+        });
+    };
 
-  const id = toKebabCase(label);
+    const id = toKebabCase(label);
 
-  return (
-    <AuthRow labelFor={id} label={label} help={help}>
-      <button id={id} className="btn btn--clicky wide" onClick={editPrivateKey}>
-        <i className="fa fa-edit space-right" />
-        {privateKey ? 'Click to Edit' : 'Click to Add'}
-      </button>
-    </AuthRow>
-  );
+    return (
+        <AuthRow labelFor={id} label={label} help={help}>
+            <button id={id} className="btn btn--clicky wide" onClick={editPrivateKey}>
+                <i className="fa fa-edit space-right" />
+                {privateKey ? 'Click to Edit' : 'Click to Add'}
+            </button>
+        </AuthRow>
+    );
 };

@@ -2,8 +2,8 @@ import React, { createRef, FunctionComponent, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 
 export interface SidebarFilterProps {
-  filter: boolean;
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+    filter: boolean;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 const StyledFilter = styled.div`
@@ -34,23 +34,23 @@ const StyledFilter = styled.div`
 `;
 
 export const SidebarFilter: FunctionComponent<SidebarFilterProps> = ({ filter, onChange }) => {
-  const filterField = createRef<HTMLInputElement>();
+    const filterField = createRef<HTMLInputElement>();
 
-  useLayoutEffect(() => {
-    if (filterField.current && !filter) {
-      filterField.current.value = '';
-    } else if (filterField.current) {
-      filterField.current.focus();
-    }
-  }, [filter, filterField]);
+    useLayoutEffect(() => {
+        if (filterField.current && !filter) {
+            filterField.current.value = '';
+        } else if (filterField.current) {
+            filterField.current.focus();
+        }
+    }, [filter, filterField]);
 
-  return (
-    <StyledFilter
-      style={{
-        height: filter ? '100%' : '0px',
-      }}
-    >
-      <input type="text" placeholder="Filter..." onChange={onChange} ref={filterField} />
-    </StyledFilter>
-  );
+    return (
+        <StyledFilter
+            style={{
+                height: filter ? '100%' : '0px'
+            }}
+        >
+            <input type="text" placeholder="Filter..." onChange={onChange} ref={filterField} />
+        </StyledFilter>
+    );
 };

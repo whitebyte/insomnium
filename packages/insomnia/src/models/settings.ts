@@ -1,7 +1,7 @@
 import {
-  getAppDefaultDarkTheme,
-  getAppDefaultLightTheme,
-  getAppDefaultTheme,
+    getAppDefaultDarkTheme,
+    getAppDefaultLightTheme,
+    getAppDefaultTheme
 } from '../common/constants';
 import { database as db } from '../common/database';
 import * as hotkeys from '../common/hotkeys';
@@ -17,121 +17,119 @@ export const canSync = false;
 
 export type ThemeSettings = Pick<Settings, 'autoDetectColorScheme' | 'lightTheme' | 'darkTheme' | 'theme'>;
 
-export const isSettings = (model: Pick<BaseModel, 'type'>): model is Settings => (
-  model.type === type
-);
-
+export const isSettings = (model: Pick<BaseModel, 'type'>): model is Settings =>
+    model.type === type;
 export function init(): BaseSettings {
-  return {
-    autoDetectColorScheme: false,
-    autoHideMenuBar: false,
-    autocompleteDelay: 1200,
-    clearOAuth2SessionOnRestart: true,
-    darkTheme: getAppDefaultDarkTheme(),
-    deviceId: null,
-    disableHtmlPreviewJs: false,
-    disableResponsePreviewLinks: false,
-    disableUpdateNotification: false,
-    editorFontSize: 11,
-    editorIndentSize: 2,
-    editorIndentWithTabs: true,
-    editorKeyMap: 'default',
-    editorLineWrapping: true,
-    enableAnalytics: false,
-    showVariableSourceAndValue: false,
-    filterResponsesByEnv: false,
-    followRedirects: true,
-    fontInterface: null,
-    fontMonospace: null,
-    fontSize: 13,
-    fontVariantLigatures: false,
-    forceVerticalLayout: false,
-    hotKeyRegistry: hotkeys.newDefaultRegistry(),
-    httpProxy: '',
-    httpsProxy: '',
-    lightTheme: getAppDefaultLightTheme(),
-    maxHistoryResponses: 20,
-    maxRedirects: 10,
-    maxTimelineDataSizeKB: 10,
-    noProxy: '',
-    nunjucksPowerUserMode: false,
-    pluginConfig: {},
-    pluginPath: '',
-    preferredHttpVersion: HttpVersions.default,
-    proxyEnabled: false,
-    showPasswords: false,
-    theme: getAppDefaultTheme(),
-    // milliseconds
-    timeout: 30_000,
-    updateAutomatically: false, //do not auto
-    updateChannel: UpdateChannel.stable,
-    useBulkHeaderEditor: false,
-    useBulkParametersEditor: false,
-    validateAuthSSL: true,
-    validateSSL: true,
-  };
+    return {
+        autoDetectColorScheme: false,
+        autoHideMenuBar: false,
+        autocompleteDelay: 1200,
+        clearOAuth2SessionOnRestart: true,
+        darkTheme: getAppDefaultDarkTheme(),
+        deviceId: null,
+        disableHtmlPreviewJs: false,
+        disableResponsePreviewLinks: false,
+        disableUpdateNotification: false,
+        editorFontSize: 11,
+        editorIndentSize: 2,
+        editorIndentWithTabs: true,
+        editorKeyMap: 'default',
+        editorLineWrapping: true,
+        enableAnalytics: false,
+        showVariableSourceAndValue: false,
+        filterResponsesByEnv: false,
+        followRedirects: true,
+        fontInterface: null,
+        fontMonospace: null,
+        fontSize: 13,
+        fontVariantLigatures: false,
+        forceVerticalLayout: false,
+        hotKeyRegistry: hotkeys.newDefaultRegistry(),
+        httpProxy: '',
+        httpsProxy: '',
+        lightTheme: getAppDefaultLightTheme(),
+        maxHistoryResponses: 20,
+        maxRedirects: 10,
+        maxTimelineDataSizeKB: 10,
+        noProxy: '',
+        nunjucksPowerUserMode: false,
+        pluginConfig: {},
+        pluginPath: '',
+        preferredHttpVersion: HttpVersions.default,
+        proxyEnabled: false,
+        showPasswords: false,
+        theme: getAppDefaultTheme(),
+        // milliseconds
+        timeout: 30_000,
+        updateAutomatically: false, //do not auto
+        updateChannel: UpdateChannel.stable,
+        useBulkHeaderEditor: false,
+        useBulkParametersEditor: false,
+        validateAuthSSL: true,
+        validateSSL: true
+    };
 }
 
 export function migrate(doc: Settings) {
-  try {
-    doc = migrateEnsureHotKeys(doc);
-    return doc;
-  } catch (e) {
-    console.log('[db] Error during settings migration', e);
-    throw e;
-  }
+    try {
+        doc = migrateEnsureHotKeys(doc);
+        return doc;
+    } catch (e) {
+        console.log('[db] Error during settings migration', e);
+        throw e;
+    }
 }
 
 export async function all() {
-  let settingsList = await db.all<Settings>(type);
+    let settingsList = await db.all<Settings>(type);
 
-  if (settingsList?.length === 0) {
-    settingsList = [await getOrCreate()];
-  }
+    if (settingsList?.length === 0) {
+        settingsList = [await getOrCreate()];
+    }
 
-  return settingsList;
+    return settingsList;
 }
 
 async function create() {
-  const settings = await db.docCreate<Settings>(type);
-  return settings;
+    const settings = await db.docCreate<Settings>(type);
+    return settings;
 }
 
 export async function update(settings: Settings, patch: Partial<Settings>) {
-  const updatedSettings = await db.docUpdate<Settings>(settings, patch);
-  return updatedSettings;
+    const updatedSettings = await db.docUpdate<Settings>(settings, patch);
+    return updatedSettings;
 }
 
 export async function patch(patch: Partial<Settings>) {
-  const settings = await getOrCreate();
-  const updatedSettings = await db.docUpdate<Settings>(settings, patch);
-  return updatedSettings;
+    const settings = await getOrCreate();
+    const updatedSettings = await db.docUpdate<Settings>(settings, patch);
+    return updatedSettings;
 }
 
 export async function getOrCreate() {
-  const results = await db.all<Settings>(type) || [];
+    const results = await db.all<Settings>(type) || [];
 
-  if (results.length === 0) {
-    return await create();
-  }
-  return results[0];
+    if (results.length === 0) {
+        return await create();
+    }
+    return results[0];
 }
 
 /**
  * Ensure map is updated when new hotkeys are added
  */
 function migrateEnsureHotKeys(settings: Settings): Settings {
-  const defaultHotKeyRegistry = hotkeys.newDefaultRegistry();
+    const defaultHotKeyRegistry = hotkeys.newDefaultRegistry();
 
-  // Remove any hotkeys that are no longer in the default registry
-  const hotKeyRegistry = (Object.keys(settings.hotKeyRegistry) as KeyboardShortcut[]).reduce((newHotKeyRegistry, key) => {
-    if (key in defaultHotKeyRegistry) {
-      newHotKeyRegistry[key] = settings.hotKeyRegistry[key];
-    }
+    // Remove any hotkeys that are no longer in the default registry
+    const hotKeyRegistry = (Object.keys(settings.hotKeyRegistry) as KeyboardShortcut[]).reduce((newHotKeyRegistry, key) => {
+        if (key in defaultHotKeyRegistry) {
+            newHotKeyRegistry[key] = settings.hotKeyRegistry[key];
+        }
 
-    return newHotKeyRegistry;
-  }, {} as Settings['hotKeyRegistry']);
+        return newHotKeyRegistry;
+    }, {} as Settings['hotKeyRegistry']);
 
-  settings.hotKeyRegistry = { ...defaultHotKeyRegistry, ...hotKeyRegistry };
-  return settings;
+    settings.hotKeyRegistry = { ...defaultHotKeyRegistry, ...hotKeyRegistry };
+    return settings;
 }

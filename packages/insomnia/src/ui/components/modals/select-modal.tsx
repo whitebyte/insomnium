@@ -7,68 +7,68 @@ import { ModalHeader } from '../base/modal-header';
 import { showModal } from '.';
 
 export interface SelectModalOptions {
-  message: string | null;
-  onDone?: (selectedValue: string | null) => void | Promise<void>;
-  options: {
-    name: string;
-    value: string;
-  }[];
-  title: string | null;
-  value: string | null;
+    message: string | null;
+    onDone?: (selectedValue: string | null) => void | Promise<void>;
+    options: {
+        name: string;
+        value: string;
+    }[];
+    title: string | null;
+    value: string | null;
 }
 export interface SelectModalHandle {
-  show: (options: SelectModalOptions) => void;
-  hide: () => void;
+    show: (options: SelectModalOptions) => void;
+    hide: () => void;
 }
 
 export const SelectModal = forwardRef<SelectModalHandle, ModalProps>((_, ref) => {
-  const modalRef = useRef<ModalHandle>(null);
-  const [state, setState] = useState<SelectModalOptions>({
-    message: null,
-    options: [],
-    title: null,
-    value: null,
-  });
+    const modalRef = useRef<ModalHandle>(null);
+    const [state, setState] = useState<SelectModalOptions>({
+        message: null,
+        options: [],
+        title: null,
+        value: null
+    });
 
-  useImperativeHandle(ref, () => ({
-    hide: () => {
-      modalRef.current?.hide();
-    },
-    show: options => {
-      setState(options);
-      modalRef.current?.show();
-    },
-  }), []);
-  const { message, title, options, value, onDone } = state;
-
-  return (
-    <Modal ref={modalRef}>
-      <ModalHeader>{title || 'Confirm?'}</ModalHeader>
-      <ModalBody className="wide pad">
-        <p>{message}</p>
-        <div className="form-control form-control--outlined">
-          <select onChange={event => setState(state => ({ ...state, value: event.target.value }))} value={value ?? undefined}>
-            {options.map(({ name, value }) => (
-              <option key={value} value={value}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </ModalBody>
-      <ModalFooter>
-        <button
-          className="btn"
-          onClick={() => {
+    useImperativeHandle(ref, () => ({
+        hide: () => {
             modalRef.current?.hide();
-            onDone?.(value);
-          }}
-        >
-          Done
-        </button>
-      </ModalFooter>
-    </Modal>
-  );
+        },
+        show: options => {
+            setState(options);
+            modalRef.current?.show();
+        }
+    }), []);
+    const { message, title, options, value, onDone } = state;
+
+    return (
+        <Modal ref={modalRef}>
+            <ModalHeader>{title || 'Confirm?'}</ModalHeader>
+            <ModalBody className="wide pad">
+                <p>{message}</p>
+                <div className="form-control form-control--outlined">
+                    <select onChange={event => setState(state => ({ ...state, value: event.target.value }))} value={value ?? undefined}>
+                        {options.map(({ name, value }) =>
+                            <option key={value} value={value}>
+                                {name}
+                            </option>
+                        )}
+                    </select>
+                </div>
+            </ModalBody>
+            <ModalFooter>
+                <button
+                    className="btn"
+                    onClick={() => {
+                        modalRef.current?.hide();
+                        onDone?.(value);
+                    }}
+                >
+                    Done
+                </button>
+            </ModalFooter>
+        </Modal>
+    );
 });
 SelectModal.displayName = 'SelectModal';
 

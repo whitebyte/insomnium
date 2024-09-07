@@ -7,18 +7,17 @@ import { importResourcesToNewWorkspace } from './importResourcesToNewWorkspace';
 import { ResourceCache } from './import';
 
 export async function importResourcesToProject({ projectId = DEFAULT_PROJECT_ID, _resources }: { projectId?: string; _resources?: BaseModel[] }) {
+    const resources = _resources || ResourceCache!.resources;
+    guard(resources, 'No resources to import');
 
-  const resources = _resources || ResourceCache!.resources;
-  guard(resources, 'No resources to import');
+    const bufferId = await db.bufferChanges();
+    if (!resources.find(isWorkspace)) {
+        await importResourcesToNewWorkspace(projectId, resources);
+        return { resources };
+    }
+    const r = await Promise.all(resources.filter(isWorkspace)
+        .map(resource => importResourcesToNewWorkspace(projectId, resources, resource)));
 
-  const bufferId = await db.bufferChanges();
-  if (!resources.find(isWorkspace)) {
-    await importResourcesToNewWorkspace(projectId, resources);
-    return { resources };
-  }
-  const r = await Promise.all(resources.filter(isWorkspace)
-    .map(resource => importResourcesToNewWorkspace(projectId, resources, resource)));
-
-  await db.flushChanges(bufferId);
-  return { resources: r.flat() };
+    await db.flushChanges(bufferId);
+    return { resources: r.flat() };
 }

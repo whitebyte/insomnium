@@ -10,7 +10,7 @@ import {
     MenuTrigger,
     Popover,
     Tooltip,
-    TooltipTrigger,
+    TooltipTrigger
 } from 'react-aria-components';
 import {
     LoaderFunction,
@@ -20,7 +20,7 @@ import {
     useLocation,
     useNavigate,
     useParams,
-    useRouteLoaderData,
+    useRouteLoaderData
 } from 'react-router-dom';
 
 import { isDevelopment } from '../../common/constants';
@@ -55,14 +55,14 @@ export interface RootLoaderData {
 
 export const loader: LoaderFunction = async (): Promise<RootLoaderData> => {
     return {
-        settings: await models.settings.getOrCreate(),
+        settings: await models.settings.getOrCreate()
     };
 };
 
 const Root = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const {settings} = useLoaderData() as RootLoaderData;
+    const { settings } = useLoaderData() as RootLoaderData;
     const workspaceData = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData | null;
     const [importUri, setImportUri] = useState('');
     const patchSettings = useSettingsPatcher();
@@ -70,7 +70,7 @@ const Root = () => {
     useEffect(() => {
         navigate({
             pathname: location.pathname,
-            hash: 'revalidate=true',
+            hash: 'revalidate=true'
         });
     }, [location.pathname, navigate]);
 
@@ -99,7 +99,7 @@ const Root = () => {
                     case 'insomnia://app/alert':
                         showModal(AlertModal, {
                             title: params.title,
-                            message: params.message,
+                            message: params.message
                         });
                         break;
 
@@ -110,11 +110,11 @@ const Root = () => {
                     case 'insomnia://plugins/install':
                         showModal(AskModal, {
                             title: 'Plugin Install',
-                            message: (
-                                <>
-                                    Do you want to install <code>{params.name}</code>?
-                                </>
-                            ),
+                            message:
+                            <>
+                                Do you want to install <code>{params.name}</code>?
+                            </>
+                            ,
                             yesText: 'Install',
                             noText: 'Cancel',
                             onDone: async (isYes: boolean) => {
@@ -126,11 +126,11 @@ const Root = () => {
                                         showError({
                                             title: 'Plugin Install',
                                             message: 'Failed to install plugin',
-                                            error: err.message,
+                                            error: err.message
                                         });
                                     }
                                 }
-                            },
+                            }
                         });
                         break;
 
@@ -138,11 +138,11 @@ const Root = () => {
                         const parsedTheme = JSON.parse(decodeURIComponent(params.theme));
                         showModal(AskModal, {
                             title: 'Install Theme',
-                            message: (
-                                <>
-                                    Do you want to install <code>{parsedTheme.displayName}</code>?
-                                </>
-                            ),
+                            message:
+                            <>
+                                Do you want to install <code>{parsedTheme.displayName}</code>?
+                            </>
+                            ,
                             yesText: 'Install',
                             noText: 'Cancel',
                             onDone: async (isYes: boolean) => {
@@ -151,7 +151,7 @@ const Root = () => {
                                         parsedTheme,
                                         null,
                                         2
-                                        )}];`;
+                                    )}];`;
                                     await createPlugin(
                                         `theme-${parsedTheme.name}`,
                                         '0.0.1',
@@ -162,12 +162,11 @@ const Root = () => {
                                     await setTheme(parsedTheme.name);
                                     showModal(SettingsModal, { tab: TAB_INDEX_THEMES });
                                 }
-                            },
+                            }
                         });
                         break;
 
                     case 'insomnia://app/auth/finish': {
-
                         break;
                     }
 
@@ -189,7 +188,7 @@ const Root = () => {
             {
                 id: workspaceData.activeProject._id,
                 label: workspaceData.activeProject.name,
-                node: (
+                node:
                     <Link data-testid="project">
                         <NavLink
                             to={`/project/${workspaceData.activeProject._id}`}
@@ -197,13 +196,13 @@ const Root = () => {
                             {workspaceData.activeProject.name}
                         </NavLink>
                     </Link>
-                ),
+
             },
             {
                 id: workspaceData.activeWorkspace._id,
                 label: workspaceData.activeWorkspace.name,
-                node: <WorkspaceDropdown />,
-            },
+                node: <WorkspaceDropdown />
+            }
         ]
         : [];
 
@@ -213,13 +212,13 @@ const Root = () => {
             <div className="app">
                 <Modals />
                 {/* triggered by insomnia://app/import */}
-                {importUri && (
+                {importUri &&
                     <ImportModal
                         onHide={() => setImportUri('')}
                         projectName="Insomnium"
                         from={{ type: 'uri', defaultValue: importUri }}
                     />
-                )}
+                }
                 <div className="w-full h-full divide-x divide-solid divide-y divide-[--hl-md] grid-template-app-layout grid relative bg-[--color-bg]">
                     <header className="[grid-area:Header] grid grid-cols-3 items-center">
                         <div className="flex items-center">
@@ -229,36 +228,36 @@ const Root = () => {
 
                         </div>
                         <div className="flex gap-2 flex-nowrap items-center justify-center">
-                            {workspaceData && (
+                            {workspaceData &&
                                 <Fragment>
                                     <Breadcrumbs items={crumbs}>
-                                        {item => (
+                                        {item =>
                                             <Item key={item.id} id={item.id}>
                                                 {item.node}
                                             </Item>
-                                        )}
+                                        }
                                     </Breadcrumbs>
-                                    {isDesign(workspaceData?.activeWorkspace) && (
+                                    {isDesign(workspaceData?.activeWorkspace) &&
                                         <nav className="flex rounded-full justify-between content-evenly font-semibold bg-[--hl-xs] p-[--padding-xxs]">
-                                            {['spec', 'debug', 'test'].map(item => (
+                                            {['spec', 'debug', 'test'].map(item =>
                                                 <NavLink
                                                     key={item}
                                                     to={`/project/${projectId}/workspace/${workspaceId}/${item}`}
                                                     className={({ isActive }) =>
                                                         `${
-isActive
-? 'text-[--color-font] bg-[--color-bg]'
-: ''
-} no-underline transition-colors text-center outline-none min-w-[4rem] uppercase text-[--color-font] text-xs px-[--padding-xs] py-[--padding-xxs] rounded-full`
+                                                            isActive
+                                                                ? 'text-[--color-font] bg-[--color-bg]'
+                                                                : ''
+                                                        } no-underline transition-colors text-center outline-none min-w-[4rem] uppercase text-[--color-font] text-xs px-[--padding-xs] py-[--padding-xxs] rounded-full`
                                                     }
                                                 >
                                                     {item}
                                                 </NavLink>
-                                            ))}
+                                            )}
                                         </nav>
-                                    )}
+                                    }
                                 </Fragment>
-                            )}
+                            }
                         </div>
 
                     </header>

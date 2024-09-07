@@ -8,7 +8,7 @@ import {
 import {
     ACTIVITY_DEBUG,
     ACTIVITY_SPEC,
-    getProductName,
+    getProductName
 } from '../common/constants';
 import { initializeLogging } from '../common/log';
 import { DEFAULT_PROJECT_ID } from '../models/project';
@@ -51,22 +51,22 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                 path: 'scan',
                                 action: async (...args) =>
                                     (await import('./routes/import')).scanForResourcesAction(
-                                        ...args,
-                                    ),
+                                        ...args
+                                    )
                             },
                             {
                                 path: 'resources',
                                 action: async (...args) =>
                                     (await import('./routes/importResourcesAction')).importResourcesAction(
-                                        ...args,
-                                    ),
-                            },
-                        ],
+                                        ...args
+                                    )
+                            }
+                        ]
                     },
                     {
                         path: 'settings/update',
                         action: async (...args) =>
-                            (await import('./routes/actions')).updateSettingsAction(...args),
+                            (await import('./routes/actions')).updateSettingsAction(...args)
                     },
                     {
                         path: 'project',
@@ -76,25 +76,25 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                 id: '/project/:projectId',
                                 loader: async (...args) =>
                                     (await import('./routes/project')).loader(...args),
-                                element: (
+                                element:
                                     <Suspense >
                                         <Project />
                                     </Suspense>
-                                ),
+                                ,
                                 children: [
                                     {
                                         path: 'delete',
                                         action: async (...args) =>
                                             (
                                                 await import('./routes/actions')
-                                            ).deleteProjectAction(...args),
+                                            ).deleteProjectAction(...args)
                                     },
                                     {
                                         path: 'rename',
                                         action: async (...args) =>
                                             (
                                                 await import('./routes/actions')
-                                            ).renameProjectAction(...args),
+                                            ).renameProjectAction(...args)
                                     }
                                 ]
                             },
@@ -108,37 +108,37 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                             (
                                                 await import('./routes/workspace')
                                             ).workspaceLoader(...args),
-                                        element: (
+                                        element:
                                             <Suspense >
                                                 <Workspace />
                                             </Suspense>
-                                        ),
+                                        ,
                                         children: [
                                             {
                                                 path: `${ACTIVITY_DEBUG}`,
                                                 loader: async (...args) =>
                                                     (await import('./routes/debug')).loader(
-                                                        ...args,
+                                                        ...args
                                                     ),
-                                                element: (
+                                                element:
                                                     <Suspense >
                                                         <Debug />
                                                     </Suspense>
-                                                ),
+                                                ,
                                                 children: [
                                                     {
                                                         path: 'reorder',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).reorderCollectionAction(...args),
+                                                            ).reorderCollectionAction(...args)
                                                     },
                                                     {
                                                         path: 'request/:requestId',
                                                         id: 'request/:requestId',
                                                         loader: async (...args) =>
                                                             (await import('./routes/request')).loader(
-                                                                ...args,
+                                                                ...args
                                                             ),
                                                         element: <Outlet />,
                                                         children: [
@@ -147,115 +147,115 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                                 action: async (...args) =>
                                                                     (
                                                                         await import('./routes/request')
-                                                                    ).sendAction(...args),
+                                                                    ).sendAction(...args)
                                                             },
                                                             {
                                                                 path: 'connect',
                                                                 action: async (...args) =>
                                                                     (
                                                                         await import('./routes/request')
-                                                                    ).connectAction(...args),
+                                                                    ).connectAction(...args)
                                                             },
                                                             {
                                                                 path: 'duplicate',
                                                                 action: async (...args) =>
                                                                     (
                                                                         await import('./routes/request')
-                                                                    ).duplicateRequestAction(...args),
+                                                                    ).duplicateRequestAction(...args)
                                                             },
                                                             {
                                                                 path: 'update',
                                                                 action: async (...args) =>
                                                                     (
                                                                         await import('./routes/request')
-                                                                    ).updateRequestAction(...args),
+                                                                    ).updateRequestAction(...args)
                                                             },
                                                             {
                                                                 path: 'update-meta',
                                                                 action: async (...args) =>
                                                                     (
                                                                         await import('./routes/request')
-                                                                    ).updateRequestMetaAction(...args),
+                                                                    ).updateRequestMetaAction(...args)
                                                             },
                                                             {
                                                                 path: 'response/delete-all',
                                                                 action: async (...args) =>
                                                                     (
                                                                         await import('./routes/request')
-                                                                    ).deleteAllResponsesAction(...args),
+                                                                    ).deleteAllResponsesAction(...args)
                                                             },
                                                             {
                                                                 path: 'response/delete',
                                                                 action: async (...args) =>
                                                                     (
                                                                         await import('./routes/request')
-                                                                    ).deleteResponseAction(...args),
-                                                            },
-                                                        ],
+                                                                    ).deleteResponseAction(...args)
+                                                            }
+                                                        ]
                                                     },
                                                     {
                                                         path: 'request/new',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/request')
-                                                            ).createRequestAction(...args),
+                                                            ).createRequestAction(...args)
                                                     },
                                                     {
                                                         path: 'request/delete',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/request')
-                                                            ).deleteRequestAction(...args),
+                                                            ).deleteRequestAction(...args)
                                                     },
                                                     {
                                                         path: 'request-group/new',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/request-group')
-                                                            ).createRequestGroupAction(...args),
+                                                            ).createRequestGroupAction(...args)
                                                     },
                                                     {
                                                         path: 'request-group/delete',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/request-group')
-                                                            ).deleteRequestGroupAction(...args),
+                                                            ).deleteRequestGroupAction(...args)
                                                     },
                                                     {
                                                         path: 'request-group/:requestGroupId/update',
-                                                        action: async (...args) => (await import('./routes/request-group')).updateRequestGroupAction(...args),
+                                                        action: async (...args) => (await import('./routes/request-group')).updateRequestGroupAction(...args)
                                                     },
                                                     {
                                                         path: 'request-group/duplicate',
-                                                        action: async (...args) => (await import('./routes/request-group')).duplicateRequestGroupAction(...args),
+                                                        action: async (...args) => (await import('./routes/request-group')).duplicateRequestGroupAction(...args)
                                                     },
                                                     {
                                                         path: 'request-group/:requestGroupId/update-meta',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/request-group')
-                                                            ).updateRequestGroupMetaAction(...args),
-                                                    },
-                                                ],
+                                                            ).updateRequestGroupMetaAction(...args)
+                                                    }
+                                                ]
                                             },
                                             {
                                                 path: `${ACTIVITY_SPEC}`,
                                                 loader: async (...args) =>
                                                     (await import('./routes/design')).loader(
-                                                        ...args,
+                                                        ...args
                                                     ),
-                                                element: (
+                                                element:
                                                     <Suspense >
                                                         <Design />
                                                     </Suspense>
-                                                ),
+                                                ,
                                                 children: [
                                                     {
                                                         path: 'update',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).updateApiSpecAction(...args),
+                                                            ).updateApiSpecAction(...args)
                                                     },
                                                     {
                                                         path: 'generate-request-collection',
@@ -263,10 +263,10 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                             (
                                                                 await import('./routes/actions')
                                                             ).generateCollectionFromApiSpecAction(
-                                                                ...args,
-                                                            ),
-                                                    },
-                                                ],
+                                                                ...args
+                                                            )
+                                                    }
+                                                ]
                                             },
                                             {
                                                 path: 'cacert',
@@ -276,23 +276,23 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).createNewCaCertificateAction(...args),
+                                                            ).createNewCaCertificateAction(...args)
                                                     },
                                                     {
                                                         path: 'update',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).updateCaCertificateAction(...args),
+                                                            ).updateCaCertificateAction(...args)
                                                     },
                                                     {
                                                         path: 'delete',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).deleteCaCertificateAction(...args),
-                                                    },
-                                                ],
+                                                            ).deleteCaCertificateAction(...args)
+                                                    }
+                                                ]
                                             },
                                             {
                                                 path: 'clientcert',
@@ -302,23 +302,23 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).createNewClientCertificateAction(...args),
+                                                            ).createNewClientCertificateAction(...args)
                                                     },
                                                     {
                                                         path: 'update',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).updateClientCertificateAction(...args),
+                                                            ).updateClientCertificateAction(...args)
                                                     },
                                                     {
                                                         path: 'delete',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).deleteClientCertificateAction(...args),
-                                                    },
-                                                ],
+                                                            ).deleteClientCertificateAction(...args)
+                                                    }
+                                                ]
                                             },
                                             {
                                                 path: 'environment',
@@ -328,37 +328,37 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).updateEnvironment(...args),
+                                                            ).updateEnvironment(...args)
                                                     },
                                                     {
                                                         path: 'delete',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).deleteEnvironmentAction(...args),
+                                                            ).deleteEnvironmentAction(...args)
                                                     },
                                                     {
                                                         path: 'create',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).createEnvironmentAction(...args),
+                                                            ).createEnvironmentAction(...args)
                                                     },
                                                     {
                                                         path: 'duplicate',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).duplicateEnvironmentAction(...args),
+                                                            ).duplicateEnvironmentAction(...args)
                                                     },
                                                     {
                                                         path: 'set-active',
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).setActiveEnvironmentAction(...args),
-                                                    },
-                                                ],
+                                                            ).setActiveEnvironmentAction(...args)
+                                                    }
+                                                ]
                                             },
                                             {
                                                 path: 'cookieJar',
@@ -368,28 +368,28 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                         action: async (...args) =>
                                                             (
                                                                 await import('./routes/actions')
-                                                            ).updateCookieJarAction(...args),
-                                                    },
-                                                ],
+                                                            ).updateCookieJarAction(...args)
+                                                    }
+                                                ]
                                             },
                                             {
                                                 path: 'test/*',
                                                 loader: async (...args) =>
                                                     (await import('./routes/unit-test')).loader(
-                                                        ...args,
+                                                        ...args
                                                     ),
-                                                element: (
+                                                element:
                                                     <Suspense >
                                                         <UnitTest />
                                                     </Suspense>
-                                                ),
+                                                ,
                                                 children: [
                                                     {
                                                         index: true,
                                                         loader: async (...args) =>
                                                             (
                                                                 await import('./routes/test-suite')
-                                                            ).indexLoader(...args),
+                                                            ).indexLoader(...args)
                                                     },
                                                     {
                                                         path: 'test-suite',
@@ -399,14 +399,14 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                                 loader: async (...args) =>
                                                                     (
                                                                         await import('./routes/test-suite')
-                                                                    ).indexLoader(...args),
+                                                                    ).indexLoader(...args)
                                                             },
                                                             {
                                                                 path: 'new',
                                                                 action: async (...args) =>
                                                                     (
                                                                         await import('./routes/actions')
-                                                                    ).createNewTestSuiteAction(...args),
+                                                                    ).createNewTestSuiteAction(...args)
                                                             },
                                                             {
                                                                 path: ':testSuiteId',
@@ -423,7 +423,7 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                                                 await import(
                                                                                     './routes/test-results'
                                                                                 )
-                                                                            ).indexLoader(...args),
+                                                                            ).indexLoader(...args)
                                                                     },
                                                                     {
                                                                         path: 'test-result',
@@ -436,30 +436,30 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                                                         await import(
                                                                                             './routes/test-results'
                                                                                         )
-                                                                                    ).loader(...args),
-                                                                            },
-                                                                        ],
+                                                                                    ).loader(...args)
+                                                                            }
+                                                                        ]
                                                                     },
                                                                     {
                                                                         path: 'delete',
                                                                         action: async (...args) =>
                                                                             (
                                                                                 await import('./routes/actions')
-                                                                            ).deleteTestSuiteAction(...args),
+                                                                            ).deleteTestSuiteAction(...args)
                                                                     },
                                                                     {
                                                                         path: 'rename',
                                                                         action: async (...args) =>
                                                                             (
                                                                                 await import('./routes/actions')
-                                                                            ).renameTestSuiteAction(...args),
+                                                                            ).renameTestSuiteAction(...args)
                                                                     },
                                                                     {
                                                                         path: 'run-all-tests',
                                                                         action: async (...args) =>
                                                                             (
                                                                                 await import('./routes/actions')
-                                                                            ).runAllTestsAction(...args),
+                                                                            ).runAllTestsAction(...args)
                                                                     },
                                                                     {
                                                                         path: 'test',
@@ -471,7 +471,7 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                                                         await import(
                                                                                             './routes/actions'
                                                                                         )
-                                                                                    ).createNewTestAction(...args),
+                                                                                    ).createNewTestAction(...args)
                                                                             },
                                                                             {
                                                                                 path: ':testId',
@@ -483,7 +483,7 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                                                                 await import(
                                                                                                     './routes/actions'
                                                                                                 )
-                                                                                            ).deleteTestAction(...args),
+                                                                                            ).deleteTestAction(...args)
                                                                                     },
                                                                                     {
                                                                                         path: 'update',
@@ -492,7 +492,7 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                                                                 await import(
                                                                                                     './routes/actions'
                                                                                                 )
-                                                                                            ).updateTestAction(...args),
+                                                                                            ).updateTestAction(...args)
                                                                                     },
                                                                                     {
                                                                                         path: 'run',
@@ -501,74 +501,74 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
                                                                                                 await import(
                                                                                                     './routes/actions'
                                                                                                 )
-                                                                                            ).runTestAction(...args),
-                                                                                    },
-                                                                                ],
-                                                                            },
-                                                                        ],
-                                                                    },
-                                                                ],
-                                                            },
-                                                        ],
-                                                    },
-                                                ],
+                                                                                            ).runTestAction(...args)
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
                                             },
                                             {
                                                 path: 'duplicate',
                                                 action: async (...args) =>
                                                     (
                                                         await import('./routes/actions')
-                                                    ).duplicateWorkspaceAction(...args),
-                                            },
-                                        ],
+                                                    ).duplicateWorkspaceAction(...args)
+                                            }
+                                        ]
                                     },
                                     {
                                         path: 'new',
                                         action: async (...args) =>
                                             (
                                                 await import('./routes/actions')
-                                            ).createNewWorkspaceAction(...args),
+                                            ).createNewWorkspaceAction(...args)
                                     },
                                     {
                                         path: 'delete',
                                         action: async (...args) =>
                                             (
                                                 await import('./routes/actions')
-                                            ).deleteWorkspaceAction(...args),
+                                            ).deleteWorkspaceAction(...args)
                                     },
                                     {
                                         path: 'update',
                                         action: async (...args) =>
                                             (
                                                 await import('./routes/actions')
-                                            ).updateWorkspaceAction(...args),
+                                            ).updateWorkspaceAction(...args)
                                     },
                                     {
                                         path: ':workspaceId/update-meta',
                                         action: async (...args) =>
                                             (await import('./routes/actions')).updateWorkspaceMetaAction(
                                                 ...args
-                                            ),
-                                    },
-                                ],
+                                            )
+                                    }
+                                ]
                             },
                             {
                                 path: 'new',
                                 action: async (...args) =>
                                     (
                                         await import('./routes/actions')
-                                    ).createNewProjectAction(...args),
+                                    ).createNewProjectAction(...args)
                             }
-                        ],
+                        ]
                     }
-                ],
-            },
+                ]
+            }
 
 
         ],
         {
-            initialEntries: [beginningPath || locationHistoryEntry],
-        },
+            initialEntries: [beginningPath || locationHistoryEntry]
+        }
     );
 
     // Store the last location in local storage
@@ -576,14 +576,14 @@ export const setupRouterStuff = (beginningPath: string | null = null) => {
         const match = matchPath(
             {
                 path: '/',
-                end: false,
+                end: false
             },
             location.pathname
         );
 
         localStorage.setItem('requester_locationHistoryEntry', location.pathname);
         localStorage.setItem('locationHistoryEntry', location.pathname);
-        console.log("location.pathname", location.pathname);
+        console.log('location.pathname', location.pathname);
     });
 
     return router;

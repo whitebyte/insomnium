@@ -11,55 +11,55 @@ import { ModalFooter } from '../base/modal-footer';
 import { ModalHeader } from '../base/modal-header';
 
 interface WorkspaceDuplicateModalProps extends ModalProps {
-  workspace: Workspace;
-  projects: Project[];
+    workspace: Workspace;
+    projects: Project[];
 }
 
 export const WorkspaceDuplicateModal: FC<WorkspaceDuplicateModalProps> = ({ workspace, projects, onHide }) => {
-  const { Form } = useFetcher();
-  const modalRef = useRef<ModalHandle>(null);
-  useEffect(() => {
-    modalRef.current?.show();
-  }, []);
+    const { Form } = useFetcher();
+    const modalRef = useRef<ModalHandle>(null);
+    useEffect(() => {
+        modalRef.current?.show();
+    }, []);
 
-  return (
-    <OverlayContainer onClick={e => e.stopPropagation()}>
-      <Modal onHide={onHide} ref={modalRef}>
-        <ModalHeader>{`Duplicate ${workspace && getWorkspaceLabel(workspace).singular}`}</ModalHeader>
-        <ModalBody className="wide">
-          <Form
-            action={`/project/${workspace.parentId}/workspace/${workspace._id}/duplicate`}
-            method='post'
-            id="workspace-duplicate-form"
-            className="wide pad"
-          >
-            <div className="form-control form-control--wide form-control--outlined">
-              <label>
-                New Name
-                <input name="name" defaultValue={workspace.name} />
-              </label>
-            </div>
-            <input name="workspaceId" value={workspace._id} readOnly className="hidden" />
-            <div className="form-control form-control--outlined">
-              <label>
-                {strings.project.singular} to duplicate into
-                <select defaultValue={workspace.parentId} name="projectId">
-                  {projects.map(project => (
-                    <option key={project._id} value={project._id}>
-                      {project.name} ({isDefaultProject(project) ? strings.defaultProject.singular : strings.localProject.singular})
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </Form>
-        </ModalBody>
-        <ModalFooter>
-          <button type="submit" form="workspace-duplicate-form" className="btn">
-            Duplicate
-          </button>
-        </ModalFooter>
-      </Modal>
-    </OverlayContainer>
-  );
+    return (
+        <OverlayContainer onClick={e => e.stopPropagation()}>
+            <Modal onHide={onHide} ref={modalRef}>
+                <ModalHeader>{`Duplicate ${workspace && getWorkspaceLabel(workspace).singular}`}</ModalHeader>
+                <ModalBody className="wide">
+                    <Form
+                        action={`/project/${workspace.parentId}/workspace/${workspace._id}/duplicate`}
+                        method='post'
+                        id="workspace-duplicate-form"
+                        className="wide pad"
+                    >
+                        <div className="form-control form-control--wide form-control--outlined">
+                            <label>
+                                New Name
+                                <input name="name" defaultValue={workspace.name} />
+                            </label>
+                        </div>
+                        <input name="workspaceId" value={workspace._id} readOnly className="hidden" />
+                        <div className="form-control form-control--outlined">
+                            <label>
+                                {strings.project.singular} to duplicate into
+                                <select defaultValue={workspace.parentId} name="projectId">
+                                    {projects.map(project =>
+                                        <option key={project._id} value={project._id}>
+                                            {project.name} ({isDefaultProject(project) ? strings.defaultProject.singular : strings.localProject.singular})
+                                        </option>
+                                    )}
+                                </select>
+                            </label>
+                        </div>
+                    </Form>
+                </ModalBody>
+                <ModalFooter>
+                    <button type="submit" form="workspace-duplicate-form" className="btn">
+                        Duplicate
+                    </button>
+                </ModalFooter>
+            </Modal>
+        </OverlayContainer>
+    );
 };

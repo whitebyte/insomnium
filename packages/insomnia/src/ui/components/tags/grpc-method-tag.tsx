@@ -6,7 +6,7 @@ import { GrpcMethodTypeName } from '../panes/grpc-request-pane';
 import { Tooltip } from '../tooltip';
 
 interface Props {
-  methodType: GrpcMethodType;
+    methodType: GrpcMethodType;
 }
 
 const StyledTag = styled.div`
@@ -14,16 +14,16 @@ const StyledTag = styled.div`
   text-align: right;
 `;
 const GrpcMethodTypeAcronym = {
-  unary: 'U',
-  server: 'SS',
-  client: 'CS',
-  bidi: 'BD',
+    unary: 'U',
+    server: 'SS',
+    client: 'CS',
+    bidi: 'BD'
 } as const;
 
-export const GrpcMethodTag: FunctionComponent<Props> = ({ methodType }) => (
-  <Tooltip message={GrpcMethodTypeName[methodType]} position="left" delay={500}>
-    <StyledTag>
-      <em>{GrpcMethodTypeAcronym[methodType]}</em>
-    </StyledTag>
-  </Tooltip>
-);
+export const GrpcMethodTag: FunctionComponent<Props> = ({ methodType }) =>
+    <Tooltip message={GrpcMethodTypeName[methodType]} position="left" delay={500}>
+        <StyledTag>
+            <em>{GrpcMethodTypeAcronym[methodType]}</em>
+        </StyledTag>
+    </Tooltip>;
+

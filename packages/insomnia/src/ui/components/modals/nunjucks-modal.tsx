@@ -9,89 +9,89 @@ import { TagEditor } from '../templating/tag-editor';
 import { VariableEditor } from '../templating/variable-editor';
 
 interface Props {
-  workspace: Workspace;
+    workspace: Workspace;
 }
 
 interface State {
-  isTag: boolean;
-  template: string;
-  onDone: Function;
+    isTag: boolean;
+    template: string;
+    onDone: Function;
 }
 
 interface NunjucksModalOptions {
-  template: string;
-  onDone: Function;
+    template: string;
+    onDone: Function;
 }
 
 export interface NunjucksModalHandle {
-  show: (options: NunjucksModalOptions) => void;
-  hide: () => void;
+    show: (options: NunjucksModalOptions) => void;
+    hide: () => void;
 }
 export const NunjucksModal = forwardRef<NunjucksModalHandle, ModalProps & Props>((props, ref) => {
-  const modalRef = useRef<ModalHandle>(null);
-  const [state, setState] = useState<State>({
-    isTag: false,
-    template: '',
-    onDone: () => { },
-  });
+    const modalRef = useRef<ModalHandle>(null);
+    const [state, setState] = useState<State>({
+        isTag: false,
+        template: '',
+        onDone: () => { }
+    });
 
-  useImperativeHandle(ref, () => ({
-    hide: () => {
-      modalRef.current?.hide();
-    },
-    show: ({ onDone, template }) => {
-      setState({
-        isTag: template.indexOf('{%') === 0,
-        template,
-        onDone,
-      });
-      modalRef.current?.show();
-    },
-  }), []);
-
-  const handleTemplateChange = (template: string) => {
-    setState(state => ({
-      ...state,
-      template,
-    }));
-  };
-
-  const { workspace } = props;
-  const { template, isTag } = state;
-  const title = isTag ? 'Tag' : 'Variable';
-  let editor: JSX.Element | null = null;
-  if (isTag) {
-    editor = <TagEditor onChange={handleTemplateChange} defaultValue={template} workspace={workspace} />;
-  } else {
-    editor = <VariableEditor onChange={handleTemplateChange} defaultValue={template} />;
-  }
-
-  return (
-    <Modal
-      ref={modalRef}
-      onHide={() => {
-        state.onDone(state.template);
-        setState(state => ({
-          ...state,
-          template: '',
-        }));
-      }}
-    >
-      <ModalHeader>Edit {title}</ModalHeader>
-      <ModalBody className="pad">
-        <form
-          onSubmit={event => {
-            event.preventDefault();
+    useImperativeHandle(ref, () => ({
+        hide: () => {
             modalRef.current?.hide();
-          }}
-        >{editor}</form>
-      </ModalBody>
-      <ModalFooter>
-        <button className="btn" onClick={() => modalRef.current?.hide()}>
-          Done
-        </button>
-      </ModalFooter>
-    </Modal>
-  );
+        },
+        show: ({ onDone, template }) => {
+            setState({
+                isTag: template.indexOf('{%') === 0,
+                template,
+                onDone
+            });
+            modalRef.current?.show();
+        }
+    }), []);
+
+    const handleTemplateChange = (template: string) => {
+        setState(state => ({
+            ...state,
+            template
+        }));
+    };
+
+    const { workspace } = props;
+    const { template, isTag } = state;
+    const title = isTag ? 'Tag' : 'Variable';
+    let editor: JSX.Element | null = null;
+    if (isTag) {
+        editor = <TagEditor onChange={handleTemplateChange} defaultValue={template} workspace={workspace} />;
+    } else {
+        editor = <VariableEditor onChange={handleTemplateChange} defaultValue={template} />;
+    }
+
+    return (
+        <Modal
+            ref={modalRef}
+            onHide={() => {
+                state.onDone(state.template);
+                setState(state => ({
+                    ...state,
+                    template: ''
+                }));
+            }}
+        >
+            <ModalHeader>Edit {title}</ModalHeader>
+            <ModalBody className="pad">
+                <form
+                    onSubmit={event => {
+                        event.preventDefault();
+                        modalRef.current?.hide();
+                    }}
+                >{editor}</form>
+            </ModalBody>
+            <ModalFooter>
+                <button className="btn" onClick={() => modalRef.current?.hide()}>
+                    Done
+                </button>
+            </ModalFooter>
+        </Modal>
+    );
 });
 NunjucksModal.displayName = 'NunjucksModal';

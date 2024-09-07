@@ -1,14 +1,14 @@
 import classnames from 'classnames';
 import React, { FC, Suspense } from 'react';
 import {
-  LoaderFunction,
-  Route,
-  Routes,
-  useFetcher,
-  useFetchers,
-  useLoaderData,
-  useNavigate,
-  useParams,
+    LoaderFunction,
+    Route,
+    Routes,
+    useFetcher,
+    useFetchers,
+    useLoaderData,
+    useNavigate,
+    useParams
 } from 'react-router-dom';
 
 import * as models from '../../models';
@@ -24,206 +24,206 @@ import { TestRunStatus } from './test-results';
 import TestSuiteRoute from './test-suite';
 
 interface LoaderData {
-  unitTestSuites: UnitTestSuite[];
+    unitTestSuites: UnitTestSuite[];
 }
 
 export const loader: LoaderFunction = async ({
-  params,
+    params
 }): Promise<LoaderData> => {
-  const { workspaceId } = params;
+    const { workspaceId } = params;
 
-  guard(workspaceId, 'Workspace ID is required');
+    guard(workspaceId, 'Workspace ID is required');
 
-  const unitTestSuites = await models.unitTestSuite.findByParentId(workspaceId);
-  guard(unitTestSuites, 'Unit test suites not found');
+    const unitTestSuites = await models.unitTestSuite.findByParentId(workspaceId);
+    guard(unitTestSuites, 'Unit test suites not found');
 
-  return {
-    unitTestSuites,
-  };
+    return {
+        unitTestSuites
+    };
 };
 
 const TestRoute: FC = () => {
-  const { unitTestSuites } = useLoaderData() as LoaderData;
+    const { unitTestSuites } = useLoaderData() as LoaderData;
 
-  const { projectId, workspaceId, testSuiteId } = useParams() as {
-    projectId: string;
-    workspaceId: string;
-    testSuiteId: string;
-  };
+    const { projectId, workspaceId, testSuiteId } = useParams() as {
+        projectId: string;
+        workspaceId: string;
+        testSuiteId: string;
+    };
 
-  const createUnitTestSuiteFetcher = useFetcher();
-  const deleteUnitTestSuiteFetcher = useFetcher();
-  const runAllTestsFetcher = useFetcher();
-  const runningTests = useFetchers()
-    .filter(
-      fetcher =>
-        fetcher.formAction?.includes('run-all-tests') ||
+    const createUnitTestSuiteFetcher = useFetcher();
+    const deleteUnitTestSuiteFetcher = useFetcher();
+    const runAllTestsFetcher = useFetcher();
+    const runningTests = useFetchers()
+        .filter(
+            fetcher =>
+                fetcher.formAction?.includes('run-all-tests') ||
         fetcher.formAction?.includes('run')
-    )
-    .some(({ state }) => state !== 'idle');
+        )
+        .some(({ state }) => state !== 'idle');
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  return (
-    <SidebarLayout
-      renderPageSidebar={
-        <ErrorBoundary showAlert>
-          <div className="unit-tests__sidebar">
-            <div className="pad-sm">
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  showPrompt({
-                    title: 'New Test Suite',
-                    defaultValue: 'New Suite',
-                    submitName: 'Create Suite',
-                    label: 'Test Suite Name',
-                    selectText: true,
-                    onComplete: async name => {
-                      createUnitTestSuiteFetcher.submit(
-                        {
-                          name,
-                        },
-                        {
-                          method: 'post',
-                          action: `/project/${projectId}/workspace/${workspaceId}/test/test-suite/new`,
+    return (
+        <SidebarLayout
+            renderPageSidebar={
+                <ErrorBoundary showAlert>
+                    <div className="unit-tests__sidebar">
+                        <div className="pad-sm">
+                            <Button
+                                variant="outlined"
+                                onClick={() => {
+                                    showPrompt({
+                                        title: 'New Test Suite',
+                                        defaultValue: 'New Suite',
+                                        submitName: 'Create Suite',
+                                        label: 'Test Suite Name',
+                                        selectText: true,
+                                        onComplete: async name => {
+                                            createUnitTestSuiteFetcher.submit(
+                                                {
+                                                    name
+                                                },
+                                                {
+                                                    method: 'post',
+                                                    action: `/project/${projectId}/workspace/${workspaceId}/test/test-suite/new`
+                                                }
+                                            );
+                                        }
+                                    });
+                                }}
+                            >
+                                New Test Suite
+                            </Button>
+                        </div>
+                        <ul>
+                            {unitTestSuites.map(suite =>
+                                <li
+                                    key={suite._id}
+                                    className={classnames({
+                                        active: suite._id === testSuiteId
+                                    })}
+                                >
+                                    <button
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            navigate(
+                                                `/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}`
+                                            );
+                                        }}
+                                    >
+                                        {suite.name}
+                                    </button>
+
+                                    <Dropdown
+                                        aria-label='Test Suite Actions'
+                                        triggerButton={
+                                            <DropdownButton className="unit-tests__sidebar__action">
+                                                <i className="fa fa-caret-down" />
+                                            </DropdownButton>
+                                        }
+                                    >
+                                        <DropdownItem aria-label='Run Tests'>
+                                            <ItemContent
+                                                stayOpenAfterClick
+                                                isDisabled={runAllTestsFetcher.state === 'submitting'}
+                                                label={runAllTestsFetcher.state === 'submitting'
+                                                    ? 'Running... '
+                                                    : 'Run Tests'}
+                                                onClick={() => {
+                                                    runAllTestsFetcher.submit(
+                                                        {},
+                                                        {
+                                                            method: 'post',
+                                                            action: `/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}/run-all-tests`
+                                                        }
+                                                    );
+                                                }}
+                                            />
+                                        </DropdownItem>
+                                        <DropdownItem aria-label='Delete Suite'>
+                                            <ItemContent
+                                                label="Delete Suite"
+                                                withPrompt
+                                                onClick={() =>
+                                                    deleteUnitTestSuiteFetcher.submit(
+                                                        {},
+                                                        {
+                                                            action: `/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}/delete`,
+                                                            method: 'post'
+                                                        }
+                                                    )
+                                                }
+                                            />
+                                        </DropdownItem>
+                                    </Dropdown>
+                                </li>
+                            )}
+                        </ul>
+                    </div>
+                    <SidebarFooter>
+                        {/* <WorkspaceSyncDropdown /> */}
+                    </SidebarFooter>
+                </ErrorBoundary>
+            }
+            renderPaneOne={
+                <Routes>
+                    <Route
+                        path={'test-suite/:testSuiteId/*'}
+                        element={
+                            <Suspense>
+                                <TestSuiteRoute />
+                            </Suspense>
                         }
-                      );
-                    },
-                  });
-                }}
-              >
-                New Test Suite
-              </Button>
-            </div>
-            <ul>
-              {unitTestSuites.map(suite => (
-                <li
-                  key={suite._id}
-                  className={classnames({
-                    active: suite._id === testSuiteId,
-                  })}
-                >
-                  <button
-                    onClick={e => {
-                      e.preventDefault();
-                      navigate(
-                        `/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}`
-                      );
-                    }}
-                  >
-                    {suite.name}
-                  </button>
-
-                  <Dropdown
-                    aria-label='Test Suite Actions'
-                    triggerButton={
-                      <DropdownButton className="unit-tests__sidebar__action">
-                        <i className="fa fa-caret-down" />
-                      </DropdownButton>
-                    }
-                  >
-                    <DropdownItem aria-label='Run Tests'>
-                      <ItemContent
-                        stayOpenAfterClick
-                        isDisabled={runAllTestsFetcher.state === 'submitting'}
-                        label={runAllTestsFetcher.state === 'submitting'
-                          ? 'Running... '
-                          : 'Run Tests'}
-                        onClick={() => {
-                          runAllTestsFetcher.submit(
-                            {},
-                            {
-                              method: 'post',
-                              action: `/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}/run-all-tests`,
-                            }
-                          );
-                        }}
-                      />
-                    </DropdownItem>
-                    <DropdownItem aria-label='Delete Suite'>
-                      <ItemContent
-                        label="Delete Suite"
-                        withPrompt
-                        onClick={() =>
-                          deleteUnitTestSuiteFetcher.submit(
-                            {},
-                            {
-                              action: `/project/${projectId}/workspace/${workspaceId}/test/test-suite/${suite._id}/delete`,
-                              method: 'post',
-                            }
-                          )
+                    />
+                    <Route
+                        path="*"
+                        element={
+                            <div className="unit-tests pad theme--pane__body">
+                                No test suite selected
+                            </div>
                         }
-                      />
-                    </DropdownItem>
-                  </Dropdown>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <SidebarFooter>
-            {/* <WorkspaceSyncDropdown /> */}
-          </SidebarFooter>
-        </ErrorBoundary>
-      }
-      renderPaneOne={
-        <Routes>
-          <Route
-            path={'test-suite/:testSuiteId/*'}
-            element={
-              <Suspense>
-                <TestSuiteRoute />
-              </Suspense>
+                    />
+                </Routes>
             }
-          />
-          <Route
-            path="*"
-            element={
-              <div className="unit-tests pad theme--pane__body">
-                No test suite selected
-              </div>
+            renderPaneTwo={
+                <Routes>
+                    <Route
+                        path="test-suite/:testSuiteId/test-result/:testResultId"
+                        element={
+                            runningTests ?
+                                <div className="unit-tests__results">
+                                    <div className="unit-tests__top-header">
+                                        <h2>Running Tests...</h2>
+                                    </div>
+                                </div>
+                                :
+                                <TestRunStatus />
+
+                        }
+                    />
+                    <Route
+                        path="*"
+                        element={
+                            runningTests ?
+                                <div className="unit-tests__results">
+                                    <div className="unit-tests__top-header">
+                                        <h2>Running Tests...</h2>
+                                    </div>
+                                </div>
+                                :
+                                <div className="unit-tests__results">
+                                    <div className="unit-tests__top-header">
+                                        <h2>No Results</h2>
+                                    </div>
+                                </div>
+
+                        }
+                    />
+                </Routes>
             }
-          />
-        </Routes>
-      }
-      renderPaneTwo={
-        <Routes>
-          <Route
-            path="test-suite/:testSuiteId/test-result/:testResultId"
-            element={
-              runningTests ? (
-                <div className="unit-tests__results">
-                  <div className="unit-tests__top-header">
-                    <h2>Running Tests...</h2>
-                  </div>
-                </div>
-              ) : (
-                <TestRunStatus />
-              )
-            }
-          />
-          <Route
-            path="*"
-            element={
-              runningTests ? (
-                <div className="unit-tests__results">
-                  <div className="unit-tests__top-header">
-                    <h2>Running Tests...</h2>
-                  </div>
-                </div>
-              ) : (
-                <div className="unit-tests__results">
-                  <div className="unit-tests__top-header">
-                    <h2>No Results</h2>
-                  </div>
-                </div>
-              )
-            }
-          />
-        </Routes>
-      }
-    />
-  );
+        />
+    );
 };
 
 export default TestRoute;

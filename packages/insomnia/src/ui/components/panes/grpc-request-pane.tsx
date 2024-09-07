@@ -32,9 +32,9 @@ import { EmptyStatePane } from './empty-state-pane';
 import { Pane, PaneBody, PaneHeader } from './pane';
 
 interface Props {
-  grpcState: GrpcRequestState;
-  setGrpcState: (states: GrpcRequestState) => void;
-  reloadRequests: (requestIds: string[]) => void;
+    grpcState: GrpcRequestState;
+    setGrpcState: (states: GrpcRequestState) => void;
+    reloadRequests: (requestIds: string[]) => void;
 }
 
 const StyledUrlBar = styled.div`
@@ -51,321 +51,320 @@ const StyledUrlEditor = styled.div`
 `;
 
 const StyledDropdownWrapper = styled.div({
-  flex: '1',
-  display: 'flex',
-  alignItems: 'center',
-  paddingRight: 'var(--padding-sm)',
-  gap: 'var(--padding-xs)',
+    flex: '1',
+    display: 'flex',
+    alignItems: 'center',
+    paddingRight: 'var(--padding-sm)',
+    gap: 'var(--padding-xs)'
 });
 
 export const canClientStream = (methodType?: GrpcMethodType) => methodType === 'client' || methodType === 'bidi';
 export const GrpcMethodTypeName = {
-  unary: 'Unary',
-  server: 'Server Streaming',
-  client: 'Client Streaming',
-  bidi: 'Bi-directional Streaming',
+    unary: 'Unary',
+    server: 'Server Streaming',
+    client: 'Client Streaming',
+    bidi: 'Bi-directional Streaming'
 } as const;
 
 export const GrpcRequestPane: FunctionComponent<Props> = ({
-  grpcState,
-  setGrpcState,
-  reloadRequests,
+    grpcState,
+    setGrpcState,
+    reloadRequests
 }) => {
-  const { activeRequest } = useRouteLoaderData('request/:requestId') as GrpcRequestLoaderData;
+    const { activeRequest } = useRouteLoaderData('request/:requestId') as GrpcRequestLoaderData;
 
-  const [isProtoModalOpen, setIsProtoModalOpen] = useState(false);
-  const { requestMessages, running, method } = grpcState;
-  const [methods, setMethods] = useState<GrpcMethodInfo[] | undefined>(undefined);
+    const [isProtoModalOpen, setIsProtoModalOpen] = useState(false);
+    const { requestMessages, running, method } = grpcState;
+    const [methods, setMethods] = useState<GrpcMethodInfo[] | undefined>(undefined);
 
-  useEffect(() => {
-    async function loadMethods() {
-      if (!activeRequest.protoFileId) {
-        return;
-      }
+    useEffect(() => {
+        async function loadMethods() {
+            if (!activeRequest.protoFileId) {
+                return;
+            }
 
-      let loadedMethods = methods;
-      if (methods === undefined) {
-        console.log(`[gRPC] loading proto file methods pf=${activeRequest.protoFileId}`);
-        loadedMethods = await window.main.grpc.loadMethods(activeRequest.protoFileId);
-        setMethods(loadedMethods);
-      }
+            let loadedMethods = methods;
+            if (methods === undefined) {
+                console.log(`[gRPC] loading proto file methods pf=${activeRequest.protoFileId}`);
+                loadedMethods = await window.main.grpc.loadMethods(activeRequest.protoFileId);
+                setMethods(loadedMethods);
+            }
 
-      if (!grpcState.method) {
-        const method = loadedMethods?.find(c => c.fullPath === activeRequest.protoMethodName);
-        if (method) {
-          setGrpcState({ ...grpcState, method });
+            if (!grpcState.method) {
+                const method = loadedMethods?.find(c => c.fullPath === activeRequest.protoMethodName);
+                if (method) {
+                    setGrpcState({ ...grpcState, method });
+                }
+            }
         }
-      }
-    }
-    loadMethods();
-  }, [activeRequest]);
+        loadMethods();
+    }, [activeRequest]);
 
-  const editorRef = useRef<CodeEditorHandle>(null);
-  const { workspaceId, requestId } = useParams() as { workspaceId: string; requestId: string };
-  const patchRequest = useRequestSetter();
-  const {
-    activeEnvironment,
-  } = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData;
-  const environmentId = activeEnvironment._id;
-  // Reset the response pane state when we switch requests or the environment gets modified
-  const uniquenessKey = `${activeEnvironment.modified}::${requestId}`;
+    const editorRef = useRef<CodeEditorHandle>(null);
+    const { workspaceId, requestId } = useParams() as { workspaceId: string; requestId: string };
+    const patchRequest = useRequestSetter();
+    const {
+        activeEnvironment
+    } = useRouteLoaderData(':workspaceId') as WorkspaceLoaderData;
+    const environmentId = activeEnvironment._id;
+    // Reset the response pane state when we switch requests or the environment gets modified
+    const uniquenessKey = `${activeEnvironment.modified}::${requestId}`;
 
-  const methodType = method?.type;
-  const handleRequestSend = async () => {
-    if (method && !running) {
-      try {
-        const request = await getRenderedGrpcRequest({
-          request: activeRequest,
-          environmentId,
-          purpose: RENDER_PURPOSE_SEND,
-          skipBody: canClientStream(methodType),
-        });
-        window.main.grpc.start({ request });
-        setGrpcState({
-          ...grpcState,
-          requestMessages: [],
-          responseMessages: [],
-          status: undefined,
-          error: undefined,
-        });
-      } catch (err) {
-        if (err.type === 'render') {
-          showModal(RequestRenderErrorModal, {
-            request: activeRequest,
-            error: err,
-          });
-        } else {
-          showAlert({
-            title: 'Unexpected Request Failure',
-            message: (
-              <div>
-                <p>The request failed due to an unhandled error:</p>
-                <code className="wide selectable">
-                  <pre>{err.message}</pre>
-                </code>
-              </div>
-            ),
-          });
-        }
-      }
-
-    }
-  };
-
-  useDocBodyKeyboardShortcuts({
-    request_send: handleRequestSend,
-  });
-
-  return (
-    <>
-      <Pane type="request">
-        <PaneHeader>
-          <StyledUrlBar>
-            <div className="method-grpc pad-right pad-left vertically-center">gRPC</div>
-            <StyledUrlEditor title={activeRequest.url}>
-              <OneLineEditor
-                id="grpc-url"
-                key={uniquenessKey}
-                type="text"
-                defaultValue={activeRequest.url}
-                placeholder="grpcb.in:9000"
-                onChange={url => patchRequest(requestId, { url })}
-                getAutocompleteConstants={() => queryAllWorkspaceUrls(workspaceId, models.grpcRequest.type, requestId)}
-              />
-            </StyledUrlEditor>
-            <StyledDropdownWrapper>
-              <GrpcMethodDropdown
-                disabled={running}
-                methods={methods ?? []}
-                selectedMethod={method}
-                handleChange={protoMethodName => {
-                  patchRequest(requestId, { protoMethodName });
-                  setGrpcState({
+    const methodType = method?.type;
+    const handleRequestSend = async () => {
+        if (method && !running) {
+            try {
+                const request = await getRenderedGrpcRequest({
+                    request: activeRequest,
+                    environmentId,
+                    purpose: RENDER_PURPOSE_SEND,
+                    skipBody: canClientStream(methodType)
+                });
+                window.main.grpc.start({ request });
+                setGrpcState({
                     ...grpcState,
                     requestMessages: [],
                     responseMessages: [],
                     status: undefined,
-                    error: undefined,
-                    method: methods?.find(m => m.fullPath === protoMethodName),
-                  });
-                }}
-              />
-              <Button
-                variant="text"
-                data-testid="button-use-request-stubs"
-                disabled={!method?.example}
-                onClick={() => {
-                  if (editorRef.current && method?.example) {
-                    editorRef.current.setValue(JSON.stringify(method.example, null, 2));
-                  }
-                }}
-              >
-                <Tooltip message="Click to replace body with an example" position="bottom" delay={500}>
-                  <i className="fa fa-code" />
-                </Tooltip>
-              </Button>
-              <Button
-                variant="text"
-                data-testid="button-server-reflection"
-                disabled={!activeRequest.url}
-                onClick={async () => {
-                  try {
-                    const rendered = await tryToInterpolateRequestOrShowRenderErrorModal({ request: activeRequest, environmentId, payload: { url: activeRequest.url, metadata: activeRequest.metadata } });
-                    const methods = await window.main.grpc.loadMethodsFromReflection(rendered);
-                    setMethods(methods);
-                    patchRequest(requestId, { protoFileId: '', protoMethodName: '' });
-                  } catch (error) {
-                    showModal(ErrorModal, { error });
-                  }
-                }}
-              >
-                <Tooltip message="Click to use server reflection" position="bottom" delay={500}>
-                  <i className="fa fa-refresh" />
-                </Tooltip>
-              </Button>
-              <Button
-                data-testid="button-proto-file"
-                variant="text"
-                onClick={() => setIsProtoModalOpen(true)}
-              >
-                <Tooltip message="Click to change proto file" position="bottom" delay={500}>
-                  <i className="fa fa-file-code-o" />
-                </Tooltip>
-              </Button>
-            </StyledDropdownWrapper>
-            <GrpcSendButton
-              running={running}
-              methodType={methodType}
-              handleCancel={() => window.main.grpc.cancel(requestId)}
-              handleStart={handleRequestSend}
-            />
-          </StyledUrlBar>
-        </PaneHeader>
-        <PaneBody>
-          {methodType && (
-            <Tabs aria-label="Grpc request pane tabs">
-              <TabItem key="method-type" title={GrpcMethodTypeName[methodType]}>
-                <>
-                  {running && canClientStream(methodType) && (
-                    <ActionButtonsContainer>
-                      <button
-                        className='btn btn--compact btn--clicky-small margin-left-sm bg-default'
-                        onClick={async () => {
-                          const requestBody = await getRenderedGrpcRequestMessage({
-                              request: activeRequest,
-                              environmentId,
-                              purpose: RENDER_PURPOSE_SEND,
-                            });
-                          const preparedMessage = {
-                            body: requestBody,
-                            requestId,
-                          };
-                          window.main.grpc.sendMessage(preparedMessage);
-                          setGrpcState({
-                            ...grpcState, requestMessages: [...requestMessages, {
-                                id: generateId(),
-                              text: preparedMessage.body.text || '',
-                                created: Date.now(),
-                            }],
-                          });
-                        }}
-                      >
-                        Stream <i className='fa fa-plus' />
-                      </button>
-                      <button
-                        className='btn btn--compact btn--clicky-small margin-left-sm bg-surprise'
-                        onClick={() => window.main.grpc.commit(requestId)}
-                      >
-                        Commit <i className='fa fa-arrow-right' />
-                      </button>
-                    </ActionButtonsContainer>
-                  )}
-                  <Tabs key={uniquenessKey} aria-label="Grpc tabbed messages tabs" isNested>
-                    {[
-                      <TabItem key="body" title="Body">
-                        <CodeEditor
-                          id="grpc-request-editor"
-                          ref={editorRef}
-                          defaultValue={activeRequest.body.text}
-                          onChange={text => patchRequest(requestId, { body: { text } })}
-                          mode="application/json"
-                          enableNunjucks
-                          showPrettifyButton={true}
-                        />
-                      </TabItem>,
-                      ...requestMessages.sort((a, b) => a.created - b.created).map((m, index) => (
-                          <TabItem key={m.id} title={`Stream ${index + 1}`}>
-                            <CodeEditor
-                              id={'grpc-request-editor-tab' + m.id}
-                              defaultValue={m.text}
-                              mode="application/json"
-                              enableNunjucks
-                              readOnly
-                              autoPrettify
-                            />
-                          </TabItem>
-                        )),
-                    ]}
-                  </Tabs>
-                </>
-              </TabItem>
-              <TabItem key="headers" title="Headers">
-                <PanelContainer className="tall wide">
-                  <ErrorBoundary key={uniquenessKey} errorClassName="font-error pad text-center">
-                    <KeyValueEditor
-                      namePlaceholder="header"
-                      valuePlaceholder="value"
-                      descriptionPlaceholder="description"
-                      pairs={activeRequest.metadata}
-                      isDisabled={running}
-                      handleGetAutocompleteNameConstants={getCommonHeaderNames}
-                      handleGetAutocompleteValueConstants={getCommonHeaderValues}
-                      onChange={(metadata: GrpcRequestHeader[]) => patchRequest(requestId, { metadata })}
-                    />
-                  </ErrorBoundary>
-                </PanelContainer>
-              </TabItem>
-            </Tabs>
-          )}
-          {!methodType && (
-            <EmptyStatePane
-              icon={<SvgIcon icon="bug" />}
-              documentationLinks={[]}
-              secondaryAction="Select a body type from above to send data in the body of a request"
-              title="Enter a URL and send to get a response"
-            />
-          )}
-        </PaneBody>
-      </Pane>
-      {isProtoModalOpen && (
-        <ProtoFilesModal
-          reloadRequests={reloadRequests}
-          defaultId={activeRequest.protoFileId}
-          onHide={() => setIsProtoModalOpen(false)}
-          onSave={async (protoFileId: string) => {
-            if (activeRequest.protoFileId !== protoFileId) {
-              patchRequest(requestId, {
-                protoFileId,
-                protoMethodName: undefined,
-              });
-              setGrpcState({ ...grpcState, method: undefined });
-              const methods = await window.main.grpc.loadMethods(protoFileId);
-              setMethods(methods);
-              setIsProtoModalOpen(false);
+                    error: undefined
+                });
+            } catch (err) {
+                if (err.type === 'render') {
+                    showModal(RequestRenderErrorModal, {
+                        request: activeRequest,
+                        error: err
+                    });
+                } else {
+                    showAlert({
+                        title: 'Unexpected Request Failure',
+                        message:
+                            <div>
+                                <p>The request failed due to an unhandled error:</p>
+                                <code className="wide selectable">
+                                    <pre>{err.message}</pre>
+                                </code>
+                            </div>
+
+                    });
+                }
             }
-            setIsProtoModalOpen(false);
-          }}
-        />
-      )}
-    </>
-  );
+        }
+    };
+
+    useDocBodyKeyboardShortcuts({
+        request_send: handleRequestSend
+    });
+
+    return (
+        <>
+            <Pane type="request">
+                <PaneHeader>
+                    <StyledUrlBar>
+                        <div className="method-grpc pad-right pad-left vertically-center">gRPC</div>
+                        <StyledUrlEditor title={activeRequest.url}>
+                            <OneLineEditor
+                                id="grpc-url"
+                                key={uniquenessKey}
+                                type="text"
+                                defaultValue={activeRequest.url}
+                                placeholder="grpcb.in:9000"
+                                onChange={url => patchRequest(requestId, { url })}
+                                getAutocompleteConstants={() => queryAllWorkspaceUrls(workspaceId, models.grpcRequest.type, requestId)}
+                            />
+                        </StyledUrlEditor>
+                        <StyledDropdownWrapper>
+                            <GrpcMethodDropdown
+                                disabled={running}
+                                methods={methods ?? []}
+                                selectedMethod={method}
+                                handleChange={protoMethodName => {
+                                    patchRequest(requestId, { protoMethodName });
+                                    setGrpcState({
+                                        ...grpcState,
+                                        requestMessages: [],
+                                        responseMessages: [],
+                                        status: undefined,
+                                        error: undefined,
+                                        method: methods?.find(m => m.fullPath === protoMethodName)
+                                    });
+                                }}
+                            />
+                            <Button
+                                variant="text"
+                                data-testid="button-use-request-stubs"
+                                disabled={!method?.example}
+                                onClick={() => {
+                                    if (editorRef.current && method?.example) {
+                                        editorRef.current.setValue(JSON.stringify(method.example, null, 2));
+                                    }
+                                }}
+                            >
+                                <Tooltip message="Click to replace body with an example" position="bottom" delay={500}>
+                                    <i className="fa fa-code" />
+                                </Tooltip>
+                            </Button>
+                            <Button
+                                variant="text"
+                                data-testid="button-server-reflection"
+                                disabled={!activeRequest.url}
+                                onClick={async () => {
+                                    try {
+                                        const rendered = await tryToInterpolateRequestOrShowRenderErrorModal({ request: activeRequest, environmentId, payload: { url: activeRequest.url, metadata: activeRequest.metadata } });
+                                        const methods = await window.main.grpc.loadMethodsFromReflection(rendered);
+                                        setMethods(methods);
+                                        patchRequest(requestId, { protoFileId: '', protoMethodName: '' });
+                                    } catch (error) {
+                                        showModal(ErrorModal, { error });
+                                    }
+                                }}
+                            >
+                                <Tooltip message="Click to use server reflection" position="bottom" delay={500}>
+                                    <i className="fa fa-refresh" />
+                                </Tooltip>
+                            </Button>
+                            <Button
+                                data-testid="button-proto-file"
+                                variant="text"
+                                onClick={() => setIsProtoModalOpen(true)}
+                            >
+                                <Tooltip message="Click to change proto file" position="bottom" delay={500}>
+                                    <i className="fa fa-file-code-o" />
+                                </Tooltip>
+                            </Button>
+                        </StyledDropdownWrapper>
+                        <GrpcSendButton
+                            running={running}
+                            methodType={methodType}
+                            handleCancel={() => window.main.grpc.cancel(requestId)}
+                            handleStart={handleRequestSend}
+                        />
+                    </StyledUrlBar>
+                </PaneHeader>
+                <PaneBody>
+                    {methodType &&
+                        <Tabs aria-label="Grpc request pane tabs">
+                            <TabItem key="method-type" title={GrpcMethodTypeName[methodType]}>
+                                <>
+                                    {running && canClientStream(methodType) &&
+                                        <ActionButtonsContainer>
+                                            <button
+                                                className='btn btn--compact btn--clicky-small margin-left-sm bg-default'
+                                                onClick={async () => {
+                                                    const requestBody = await getRenderedGrpcRequestMessage({
+                                                        request: activeRequest,
+                                                        environmentId,
+                                                        purpose: RENDER_PURPOSE_SEND
+                                                    });
+                                                    const preparedMessage = {
+                                                        body: requestBody,
+                                                        requestId
+                                                    };
+                                                    window.main.grpc.sendMessage(preparedMessage);
+                                                    setGrpcState({
+                                                        ...grpcState, requestMessages: [...requestMessages, {
+                                                            id: generateId(),
+                                                            text: preparedMessage.body.text || '',
+                                                            created: Date.now()
+                                                        }]
+                                                    });
+                                                }}
+                                            >
+                                                Stream <i className='fa fa-plus' />
+                                            </button>
+                                            <button
+                                                className='btn btn--compact btn--clicky-small margin-left-sm bg-surprise'
+                                                onClick={() => window.main.grpc.commit(requestId)}
+                                            >
+                                                Commit <i className='fa fa-arrow-right' />
+                                            </button>
+                                        </ActionButtonsContainer>
+                                    }
+                                    <Tabs key={uniquenessKey} aria-label="Grpc tabbed messages tabs" isNested>
+                                        {[
+                                            <TabItem key="body" title="Body">
+                                                <CodeEditor
+                                                    id="grpc-request-editor"
+                                                    ref={editorRef}
+                                                    defaultValue={activeRequest.body.text}
+                                                    onChange={text => patchRequest(requestId, { body: { text } })}
+                                                    mode="application/json"
+                                                    enableNunjucks
+                                                    showPrettifyButton={true}
+                                                />
+                                            </TabItem>,
+                                            ...requestMessages.sort((a, b) => a.created - b.created).map((m, index) =>
+                                                <TabItem key={m.id} title={`Stream ${index + 1}`}>
+                                                    <CodeEditor
+                                                        id={'grpc-request-editor-tab' + m.id}
+                                                        defaultValue={m.text}
+                                                        mode="application/json"
+                                                        enableNunjucks
+                                                        readOnly
+                                                        autoPrettify
+                                                    />
+                                                </TabItem>
+                                            )
+                                        ]}
+                                    </Tabs>
+                                </>
+                            </TabItem>
+                            <TabItem key="headers" title="Headers">
+                                <PanelContainer className="tall wide">
+                                    <ErrorBoundary key={uniquenessKey} errorClassName="font-error pad text-center">
+                                        <KeyValueEditor
+                                            namePlaceholder="header"
+                                            valuePlaceholder="value"
+                                            descriptionPlaceholder="description"
+                                            pairs={activeRequest.metadata}
+                                            isDisabled={running}
+                                            handleGetAutocompleteNameConstants={getCommonHeaderNames}
+                                            handleGetAutocompleteValueConstants={getCommonHeaderValues}
+                                            onChange={(metadata: GrpcRequestHeader[]) => patchRequest(requestId, { metadata })}
+                                        />
+                                    </ErrorBoundary>
+                                </PanelContainer>
+                            </TabItem>
+                        </Tabs>
+                    }
+                    {!methodType &&
+                        <EmptyStatePane
+                            icon={<SvgIcon icon="bug" />}
+                            documentationLinks={[]}
+                            secondaryAction="Select a body type from above to send data in the body of a request"
+                            title="Enter a URL and send to get a response"
+                        />
+                    }
+                </PaneBody>
+            </Pane>
+            {isProtoModalOpen &&
+                <ProtoFilesModal
+                    reloadRequests={reloadRequests}
+                    defaultId={activeRequest.protoFileId}
+                    onHide={() => setIsProtoModalOpen(false)}
+                    onSave={async (protoFileId: string) => {
+                        if (activeRequest.protoFileId !== protoFileId) {
+                            patchRequest(requestId, {
+                                protoFileId,
+                                protoMethodName: undefined
+                            });
+                            setGrpcState({ ...grpcState, method: undefined });
+                            const methods = await window.main.grpc.loadMethods(protoFileId);
+                            setMethods(methods);
+                            setIsProtoModalOpen(false);
+                        }
+                        setIsProtoModalOpen(false);
+                    }}
+                />
+            }
+        </>
+    );
 };
 const ActionButtonsContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'flex-end',
-  boxSizing: 'border-box',
-  height: 'var(--line-height-sm)',
-  borderBottom: '1px solid var(--hl-lg)',
-  padding: 3,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    boxSizing: 'border-box',
+    height: 'var(--line-height-sm)',
+    borderBottom: '1px solid var(--hl-lg)',
+    padding: 3
 });

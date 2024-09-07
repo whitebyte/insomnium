@@ -3,10 +3,10 @@ import styled, { css } from 'styled-components';
 import type { ValueOf } from 'type-fest';
 
 export const ButtonSizeEnum = {
-  Default: 'default',
-  Small: 'small',
-  Medium: 'medium',
-  xs: 'xs',
+    Default: 'default',
+    Small: 'small',
+    Medium: 'medium',
+    xs: 'xs'
 } as const;
 
 // These variants determine how the `bg` color variable is handled
@@ -14,49 +14,49 @@ export const ButtonSizeEnum = {
 // Contained sets the `bg` color as the background color
 // Text sets the `bg` color as the text color
 export const ButtonVariantEnum = {
-  Outlined: 'outlined',
-  Contained: 'contained',
-  Text: 'text',
+    Outlined: 'outlined',
+    Contained: 'contained',
+    Text: 'text'
 } as const;
 
 // Sets the `bg` color to a themed color
 export const ButtonThemeEnum = {
-  Default: 'default',
-  Surprise: 'surprise',
-  Info: 'info',
-  Success: 'success',
-  Notice: 'notice',
-  Warning: 'warning',
-  Danger: 'danger',
+    Default: 'default',
+    Surprise: 'surprise',
+    Info: 'info',
+    Success: 'success',
+    Notice: 'notice',
+    Warning: 'warning',
+    Danger: 'danger'
 } as const;
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  bg?: ValueOf<typeof ButtonThemeEnum>;
-  variant?: ValueOf<typeof ButtonVariantEnum>;
-  size?: ValueOf<typeof ButtonSizeEnum>;
-  radius?: string;
-  margin?: string;
+    bg?: ValueOf<typeof ButtonThemeEnum>;
+    variant?: ValueOf<typeof ButtonVariantEnum>;
+    size?: ValueOf<typeof ButtonSizeEnum>;
+    radius?: string;
+    margin?: string;
 }
 
 const getColorVar = (theme?: ValueOf<typeof ButtonThemeEnum>) => {
-  if (!theme || theme === ButtonThemeEnum.Default) {
-    return 'var(--color-font)';
-  }
+    if (!theme || theme === ButtonThemeEnum.Default) {
+        return 'var(--color-font)';
+    }
 
-  return `var(--color-${theme})`;
+    return `var(--color-${theme})`;
 };
 
 const getFontColorVar = (theme?: ValueOf<typeof ButtonThemeEnum>) => {
-  if (!theme || theme === ButtonThemeEnum.Default) {
-    return 'var(--color-font)';
-  }
+    if (!theme || theme === ButtonThemeEnum.Default) {
+        return 'var(--color-font)';
+    }
 
-  return `var(--color-font-${theme})`;
+    return `var(--color-font-${theme})`;
 };
 
 export const Button = styled.button<ButtonProps>`
   color: ${({ bg }) => getColorVar(bg)};
-  margin: ${({ margin }) => (margin || 0)};
+  margin: ${({ margin }) => margin || 0};
   text-align: center;
   font-size: var(--font-size-sm);
   display: inline-flex !important;
@@ -70,93 +70,93 @@ export const Button = styled.button<ButtonProps>`
   `};
 
   ${({ size }) => {
-    switch (size) {
-      case 'xs':
-        return css`
+        switch (size) {
+            case 'xs':
+                return css`
           padding: 0 calc(var(--padding-md) * 0.5);
           height: calc(var(--line-height-xs) * 0.5);
           font-size: var(--font-size-xs);
         `;
-      case 'small':
-        return css`
+            case 'small':
+                return css`
           padding: 0 calc(var(--padding-md) * 0.8);
           height: calc(var(--line-height-xs) * 0.8);
           font-size: var(--font-size-sm);
         `;
 
-      case 'medium':
-        return css`
+            case 'medium':
+                return css`
           padding: 0 var(--padding-md);
           height: calc(var(--line-height-md) * 0.8);
           font-size: var(--font-size-md);
         `;
 
-      default:
-        return css`
+            default:
+                return css`
           padding: 0 var(--padding-md);
           height: var(--line-height-xs);
         `;
-    }
-  }}}
+        }
+    }}}
 
   ${({ variant, bg }) => {
-    if (variant !== 'outlined') {
-      return '';
-    }
+        if (variant !== 'outlined') {
+            return '';
+        }
 
-    // Inherit border color from text color for colored outlines
-    if (bg === 'default') {
-      return 'border-color: var(--hl-lg)';
-    }
+        // Inherit border color from text color for colored outlines
+        if (bg === 'default') {
+            return 'border-color: var(--hl-lg)';
+        }
 
-    // Colored borders inherit from button text color
-    return 'border-color: inherit';
-  }}}
+        // Colored borders inherit from button text color
+        return 'border-color: inherit';
+    }}}
 
   ${({ variant, bg }) => {
-    if (variant !== 'contained') {
-      return 'background-color: transparent;';
-    }
+        if (variant !== 'contained') {
+            return 'background-color: transparent;';
+        }
 
-    if (bg === 'default') {
-      return 'background-color: var(--hl-xs)';
-    }
+        if (bg === 'default') {
+            return 'background-color: var(--hl-xs)';
+        }
 
-    return `background: var(--color-${bg}); color: ${getFontColorVar(bg)}`;
-  }}}
+        return `background: var(--color-${bg}); color: ${getFontColorVar(bg)}`;
+    }}}
 
   &:focus,
   &:hover {
     &:not(:disabled) {
       outline: 0;
       ${({ variant, bg }) => {
-    if (variant === 'contained') {
-      // kind of a hack, but using inset box shadow to darken the theme color
-      return 'box-shadow: inset 0 0 99px rgba(0, 0, 0, 0.1)';
-    }
+        if (variant === 'contained') {
+            // kind of a hack, but using inset box shadow to darken the theme color
+            return 'box-shadow: inset 0 0 99px rgba(0, 0, 0, 0.1)';
+        }
 
-    if (bg === 'default') {
-      return 'background-color: var(--hl-xs)';
-    }
+        if (bg === 'default') {
+            return 'background-color: var(--hl-xs)';
+        }
 
-    return `background-color: rgba(var(--color-${bg}-rgb), 0.1)`;
-  }}
+        return `background-color: rgba(var(--color-${bg}-rgb), 0.1)`;
+    }}
     }
   }
 
   &:active:not(:disabled) {
     ${({ variant, bg }) => {
-    if (variant === 'contained') {
-      // kind of a hack, but using inset box shadow to darken the theme color
-      return 'box-shadow: inset 0 0 99px rgba(0, 0, 0, 0.2)';
-    }
+        if (variant === 'contained') {
+            // kind of a hack, but using inset box shadow to darken the theme color
+            return 'box-shadow: inset 0 0 99px rgba(0, 0, 0, 0.2)';
+        }
 
-    if (bg === 'default') {
-      return 'background-color: var(--hl-sm)';
-    }
+        if (bg === 'default') {
+            return 'background-color: var(--hl-sm)';
+        }
 
-    return `background-color: rgba(var(--color-${bg}-rgb), 0.2)`;
-  }}
+        return `background-color: rgba(var(--color-${bg}-rgb), 0.2)`;
+    }}
   }
 
   &:disabled {
@@ -165,9 +165,9 @@ export const Button = styled.button<ButtonProps>`
 `;
 
 Button.defaultProps = {
-  variant: 'outlined',
-  bg: 'default',
-  size: 'default',
-  radius: '3px',
-  role: 'button',
+    variant: 'outlined',
+    bg: 'default',
+    size: 'default',
+    radius: '3px',
+    role: 'button'
 };

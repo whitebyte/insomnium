@@ -5,15 +5,15 @@ import { PlatformKeyCombinations } from '../../../../common/settings';
 import { Hotkey } from '../../hotkey';
 
 const StyledHotkey = styled(Hotkey)({
-  color: 'var(--hl-xl)',
-  marginLeft: 'auto',
-  paddingLeft: 'var(--padding-lg)',
+    color: 'var(--hl-xl)',
+    marginLeft: 'auto',
+    paddingLeft: 'var(--padding-lg)'
 });
 
 interface Props {
-  keyBindings: PlatformKeyCombinations;
+    keyBindings: PlatformKeyCombinations;
 }
 
 export const DropdownHint = (props: Props) => {
-  return <StyledHotkey keyBindings={props.keyBindings} />;
+    return <StyledHotkey keyBindings={props.keyBindings} />;
 };
