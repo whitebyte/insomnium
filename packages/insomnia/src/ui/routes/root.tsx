@@ -1,3 +1,4 @@
+import '../css/semantic.min.css'
 import '../css/styles.css';
 import type { IpcRendererEvent } from 'electron';
 import React, { Fragment, useEffect, useState } from 'react';

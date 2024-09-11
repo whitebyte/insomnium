@@ -2,6 +2,7 @@ import classnames from 'classnames';
 import clone from 'clone';
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { useMount } from 'react-use';
+import { Dropdown, DropdownItem, DropdownMenu } from 'semantic-ui-react';
 import { database as db } from '../../../common/database';
 import { delay, fnOrString } from '../../../common/misc';
 import { metaSortKeySort } from '../../../common/sorting';
@@ -19,7 +20,6 @@ import type {
 } from '../../../templating/utils';
 import * as templateUtils from '../../../templating/utils';
 import { useNunjucks } from '../../context/nunjucks/use-nunjucks';
-import { Dropdown, DropdownButton, DropdownItem, DropdownSection, ItemContent } from '../base/dropdown';
 import { FileInputButton } from '../base/file-input-button';
 import { HelpTooltip } from '../help-tooltip';
 import { localTemplateTags } from './local-template-tags';
@@ -201,6 +201,28 @@ export const TagEditor: FC<Props> = props => {
         }
     }
 
+    function handleDropdownChange(event: React.SyntheticEvent<HTMLElement | HTMLSelectElement>, data: any) {
+        debugger
+        // let argIndex = -1;
+        // if (event.currentTarget.parentNode instanceof HTMLElement) {
+        //     const index = event.currentTarget.parentNode?.getAttribute('data-arg-index');
+        //     argIndex = typeof index === 'string' ? parseInt(index, 10) : -1;
+        // }
+        // // Handle special types
+        // if (event.currentTarget.getAttribute('data-encoding') === 'base64') {
+        //     return updateArg(templateUtils.encodeEncoding(event.currentTarget.value, 'base64'), argIndex);
+        // }
+        // // Handle normal types
+        // if (event.currentTarget.type === 'number') {
+        //     return updateArg(parseFloat(event.currentTarget.value), argIndex);
+        // } else if (event.currentTarget.type === 'checkbox') {
+        //     // @ts-expect-error -- TSCONVERSION .checked doesn't exist on HTMLSelectElement
+        //     return updateArg(event.currentTarget.checked, argIndex);
+        // } else {
+        //     return updateArg(event.currentTarget.value, argIndex);
+        // }
+    }
+
     async function update(
         tagDefinitions: NunjucksParsedTag[],
         tagDefinition: NunjucksParsedTag | null,
@@ -378,13 +400,17 @@ export const TagEditor: FC<Props> = props => {
                         />;
                     } else if (argDefinition.type === 'model') {
                         argInput = state.loadingDocs ?
-                            <select disabled={state.loadingDocs}>
-                                <option>Loading...</option>
-                            </select>
+                            <Dropdown disabled={state.loadingDocs}>
+                                <DropdownItem>Loading...</DropdownItem>
+                            </Dropdown>
                             :
-                            <select value={typeof strValue === 'string' ? strValue : 'unknown'} onChange={handleChange}>
-                                <option value="n/a">-- Select Item --</option>
-                                {state.allDocs[typeof argDefinition.model === 'string' ? argDefinition.model : 'unknown']?.map((doc: any) => {
+                            <Dropdown
+                                value={typeof strValue === 'string' ? strValue : 'unknown'}
+                                search
+                                fluid
+                                selection
+                                onChange={handleDropdownChange}
+                                options={state.allDocs[typeof argDefinition.model === 'string' ? argDefinition.model : 'unknown']?.map((doc: any) => {
                                     let namePrefix: string | null = null;
                                     // Show parent folder with name if it's a request
                                     if (isRequest(doc)) {
@@ -396,14 +422,14 @@ export const TagEditor: FC<Props> = props => {
                                         const requestGroupPrefix = resolveRequestGroupPrefix(parentId, allRequestGroups);
                                         namePrefix = `${requestGroupPrefix + method} `;
                                     }
-                                    return (
-                                        <option key={doc._id} value={doc._id}>
-                                            {namePrefix}
-                                            {typeof doc.name === 'string' ? doc.name : 'Unknown Request'}
-                                        </option>
-                                    );
+
+                                    return {
+                                        key: doc.id,
+                                        text: `${namePrefix} ${typeof doc.name === 'string' ? doc.name : 'Unknown Request'}`,
+                                        value: doc._id
+                                    };
                                 })}
-                            </select>;
+                            />
                     } else if (argDefinition.type === 'boolean') {
                         argInput = <input type="checkbox" checked={strValue.toLowerCase() === 'true'} onChange={handleChange} />;
                     } else if (argDefinition.type === 'number') {
@@ -470,56 +496,53 @@ export const TagEditor: FC<Props> = props => {
                             >
                                 <Dropdown
                                     aria-label='Variable Dropdown'
-                                    triggerButton={
-                                        <DropdownButton className="btn btn--clicky">
-                                            <i className="fa fa-gear" />
-                                        </DropdownButton>
-                                    }
+                                    button
+                                    icon="cog"
+                                    text="Test"
+                                    className="icon"
+                                    labeled
                                 >
-                                    <DropdownSection
+                                    <DropdownMenu
                                         aria-label="Input Type Section"
                                         title="Input Type"
                                     >
-                                        <DropdownItem aria-label='Static Value'>
-                                            <ItemContent
-                                                icon={isVariable ? 'check' : ''}
-                                                label="Static Value"
-                                                onClick={() => {
-                                                    const { activeTagData, activeTagDefinition, variables } = state;
-                                                    if (!activeTagData || !activeTagDefinition) {
-                                                        console.warn('Failed to change arg variable', { state: state });
-                                                        return;
-                                                    }
-                                                    const argData = activeTagData.args[index];
-                                                    const argDef = activeTagDefinition.args[index];
-                                                    const existingValue = argData ? argData.value : '';
-                                                    const initialType = argDef ? argDef.type : 'string';
-                                                    const variable = variables.find(v => v.name === existingValue);
-                                                    const value = variable ? variable.value : '';
-                                                    return updateArg(value, index, initialType, { quotedBy: "'" });
-                                                }}
-                                            />
-                                        </DropdownItem>
-                                        <DropdownItem aria-label='Environment Variable'>
-                                            <ItemContent
-                                                icon={isVariable ? '' : 'check'}
-                                                label="Environment Variable"
-                                                onClick={() => {
-                                                    const { activeTagData, activeTagDefinition, variables } = state;
-                                                    if (!activeTagData || !activeTagDefinition) {
-                                                        console.warn('Failed to change arg variable', { state: state });
-                                                        return;
-                                                    }
-                                                    const argData = activeTagData.args[index];
-                                                    const existingValue = argData ? argData.value : '';
-                                                    const variable = variables.find(v => v.value === existingValue);
-                                                    const firstVariable = variables.length ? variables[0].name : '';
-                                                    const value = variable ? variable.name : firstVariable;
-                                                    return updateArg(value || 'my_variable', index, 'variable');
-                                                }}
-                                            />
-                                        </DropdownItem>
-                                    </DropdownSection>
+                                        <DropdownItem aria-label='Static Value'
+                                            icon={isVariable ? 'check' : ''}
+                                            label="Static Value"
+                                            onClick={() => {
+                                                const { activeTagData, activeTagDefinition, variables } = state;
+                                                if (!activeTagData || !activeTagDefinition) {
+                                                    console.warn('Failed to change arg variable', { state: state });
+                                                    return;
+                                                }
+                                                const argData = activeTagData.args[index];
+                                                const argDef = activeTagDefinition.args[index];
+                                                const existingValue = argData ? argData.value : '';
+                                                const initialType = argDef ? argDef.type : 'string';
+                                                const variable = variables.find(v => v.name === existingValue);
+                                                const value = variable ? variable.value : '';
+                                                return updateArg(value, index, initialType, { quotedBy: "'" });
+                                            }}
+                                        />
+                                        <DropdownItem
+                                            aria-label='Environment Variable'
+                                            icon={isVariable ? '' : 'check'}
+                                            label="Environment Variable"
+                                            onClick={() => {
+                                                const { activeTagData, activeTagDefinition, variables } = state;
+                                                if (!activeTagData || !activeTagDefinition) {
+                                                    console.warn('Failed to change arg variable', { state: state });
+                                                    return;
+                                                }
+                                                const argData = activeTagData.args[index];
+                                                const existingValue = argData ? argData.value : '';
+                                                const variable = variables.find(v => v.value === existingValue);
+                                                const firstVariable = variables.length ? variables[0].name : '';
+                                                const value = variable ? variable.name : firstVariable;
+                                                return updateArg(value || 'my_variable', index, 'variable');
+                                            }}
+                                        />
+                                    </DropdownMenu>
                                 </Dropdown>
                             </div>
                             : null}
